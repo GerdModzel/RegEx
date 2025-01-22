@@ -1,0 +1,8 @@
+#include <gtest/gtest.h>
+
+#include "parse.h"
+
+TEST(ParseTest, BasicTest) {
+  const auto result = regex::parse("sdf");
+  ASSERT_TRUE(dynamic_cast<const regex::ParseResult*>(&result));
+}
