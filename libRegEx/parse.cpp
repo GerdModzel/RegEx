@@ -1,13 +1,12 @@
 ﻿#include "parse.h"
 
 #include <iostream>
-
-#include "Result.h"
+#include <span>
 
 namespace regex {
 
-  ParseResult parse(std::string_view text) {
-    std::cout << text << std::endl;
+  ParseResult parse(std::string_view text, std::string_view expr) {
+    std::cout << expr << std::endl;
     return ParseResult{};
   }
 

@@ -3,6 +3,6 @@
 #include "parse.h"
 
 TEST(ParseTest, BasicTest) {
-  const auto result = regex::parse("sdf");
+  const auto result = regex::parse("sdfsdf", "sdf");
   ASSERT_TRUE(dynamic_cast<const regex::ParseResult*>(&result));
 }

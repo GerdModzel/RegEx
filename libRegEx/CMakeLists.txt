@@ -1,6 +1,6 @@
 ﻿file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../inc/*.h")
 
-add_library(libRegEx parse.cpp Result.cpp ${HEADER_LIST})
+add_library(libRegEx parse.cpp ParseResult.cpp ${HEADER_LIST})
 
 target_include_directories(libRegEx PUBLIC ../inc)
 
