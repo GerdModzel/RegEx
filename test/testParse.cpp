@@ -4,5 +4,5 @@
 
 TEST(ParseTest, BasicTest) {
   const auto result = regex::parse("sdfsdf", "sdf");
-  ASSERT_TRUE(dynamic_cast<const regex::ParseResult*>(&result));
+  ASSERT_TRUE(result.empty());
 }

@@ -5,9 +5,9 @@
 
 namespace regex {
 
-  ParseResult parse(std::string_view text, std::string_view expr) {
+  std::vector<ParseResult> parse(std::string_view text, std::string_view expr) {
     std::cout << expr << std::endl;
-    return ParseResult{};
+    return {};
   }
 
 }
