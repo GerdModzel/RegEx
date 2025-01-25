@@ -7,6 +7,8 @@
 #include <vector>
 #include <cassert>
 
+#include <ParseResult.h>
+
 namespace regex {
 
   struct NfaState
@@ -15,8 +17,7 @@ namespace regex {
 
     Type type;
     std::optional<char> ch;
-    NfaState* nextStateUpper;
-    NfaState* nextStateLower;
+    std::vector<NfaState*> nextStates;
     int lastList;
   };
 
@@ -26,10 +27,9 @@ namespace regex {
   };
 
   void patch(std::vector<NfaState*>& ptrList, NfaState* state) {
-    for (auto ptr : ptrList) {
-      ptr->nextStateUpper = state;
-      ptr->nextStateLower = state;
-    }
+    for (auto ptr : ptrList)
+      for (auto nextState : ptr->nextStates)
+        nextState = state;
   }
 
   NfaFragment buildNfaList(std::string_view expr) {
@@ -50,9 +50,9 @@ namespace regex {
           break;
         }
         default: {
-          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::make_optional(ch), nullptr, nullptr));
+          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::make_optional(ch), std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
-          auto output = state->nextStateUpper;
+          auto output = state->nextStates[0];
           fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState*>{output});
           break;
         }
@@ -60,12 +60,16 @@ namespace regex {
     }
     auto fragment = std::move(fragmentStack.top());
     fragmentStack.pop();
-    stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, nullptr, nullptr));
+    stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{}, 0));
     auto matchState = stateManager.back().get();
  
     patch(fragmentStack.top().nextStates, matchState);
     assert(fragmentStack.size() == 1);
     return fragmentStack.top();
+  }
+
+  regex::ParseResult walkThroughNfa() {
+    
   }
 
 }
