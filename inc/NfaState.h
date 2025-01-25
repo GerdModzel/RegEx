@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <cassert>
+#include <algorithm>
 
 #include <ParseResult.h>
 
@@ -68,8 +69,41 @@ namespace regex {
     return fragmentStack.top();
   }
 
-  regex::ParseResult walkThroughNfa() {
+  void addstate(std::vector<NfaState*>& list, NfaState* state, const unsigned listId)
+  {
+    if (state == nullptr || state->lastList == listId)
+      return;
+    state->lastList = listId;
+    if (state->type == NfaState::Type::split) {
+      /* follow unlabeled arrows */
+      for (const auto& nextState : state->nextStates)
+        addstate(list, nextState, listId);
+      return;
+    }
+    list.push_back(state);
+  }
+
+  std::vector<NfaState*> step(const std::vector<NfaState*>& oldStateList, char ch, const unsigned listId) {
+    std::vector<NfaState*> newStateList;
+ 
+    for (const auto oldState : oldStateList) {
+      if (oldState->type == NfaState::Type::ch && oldState->ch == ch)
+        addstate(newStateList, oldState->nextStates[0], listId);
+    }
+    return newStateList;
+  }
+
+  bool walkThroughNfa(NfaState* startState, std::string_view expr) {
+    unsigned listId = 1;
+    std::vector<NfaState*> stateList;
     
+    addstate(stateList, startState, listId);
+    for (const auto ch : expr) {
+      ++listId;
+      stateList = step(stateList, ch, listId);
+    }
+
+    return std::any_of(stateList.begin(), stateList.end(), [](const NfaState* state) {return state->type == NfaState::Type::match; });
   }
 
 }
