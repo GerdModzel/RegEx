@@ -24,19 +24,16 @@ namespace regex {
 
   struct NfaFragment {
      NfaState* startState;
-    std::vector<NfaState*> nextStates;
+    std::vector<NfaState**> nextStates;
   };
 
-  void patch(std::vector<NfaState*>& ptrList, NfaState* state) {
-    for (auto ptr : ptrList)
-      for (auto nextState : ptr->nextStates)
-        nextState = state;
+  void patch(std::vector<NfaState**>& ptrList, NfaState* state) {
+    for (auto& nextState : ptrList)
+      *nextState = state;
   }
 
-  NfaFragment buildNfaList(std::string_view expr) {
-
+  std::pair<NfaFragment, std::vector<std::unique_ptr<NfaState>>>  buildNfaList(std::string_view expr) {
     std::stack<NfaFragment> fragmentStack;
-
     std::vector<std::unique_ptr<NfaState>> stateManager;
 
     for (auto ch : expr) {
@@ -53,26 +50,25 @@ namespace regex {
         default: {
           stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::make_optional(ch), std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
-          auto output = state->nextStates[0];
-          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState*>{output});
+          auto& output = state->nextStates[0];
+          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
           break;
         }
       }
     }
-    auto fragment = std::move(fragmentStack.top());
-    fragmentStack.pop();
     stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{}, 0));
     auto matchState = stateManager.back().get();
  
     patch(fragmentStack.top().nextStates, matchState);
     assert(fragmentStack.size() == 1);
-    return fragmentStack.top();
+    return {fragmentStack.top(), std::move(stateManager)};
   }
 
   void addstate(std::vector<NfaState*>& list, NfaState* state, const unsigned listId)
   {
-    if (state == nullptr || state->lastList == listId)
-      return;
+    assert(state != nullptr);
+//    if (state->lastList == listId)
+ //     return;
     state->lastList = listId;
     if (state->type == NfaState::Type::split) {
       /* follow unlabeled arrows */
@@ -88,22 +84,31 @@ namespace regex {
  
     for (const auto oldState : oldStateList) {
       if (oldState->type == NfaState::Type::ch && oldState->ch == ch)
-        addstate(newStateList, oldState->nextStates[0], listId);
+        for (const auto& nextState : oldState->nextStates)
+          addstate(newStateList, nextState, listId);
     }
     return newStateList;
   }
 
-  bool walkThroughNfa(NfaState* startState, std::string_view expr) {
+  bool ismatch(const std::vector<NfaState*>& stateList) {
+    return std::any_of(stateList.cbegin(), stateList.cend(), [](const NfaState* state) {return state->type == NfaState::Type::match; });
+  }
+
+  unsigned walkThroughNfa(NfaState* startState, std::string_view text) {
     unsigned listId = 1;
     std::vector<NfaState*> stateList;
     
     addstate(stateList, startState, listId);
-    for (const auto ch : expr) {
+
+    for (const auto ch : text) {
       ++listId;
       stateList = step(stateList, ch, listId);
+      if (ismatch(stateList))
+        return listId - 1;
+      if (stateList.empty())
+        return 0;
     }
-
-    return std::any_of(stateList.begin(), stateList.end(), [](const NfaState* state) {return state->type == NfaState::Type::match; });
+    return 0;
   }
 
 }
