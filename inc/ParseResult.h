@@ -6,19 +6,19 @@ namespace regex {
 
   class ParseResult {
   public:
-    ParseResult();
+    ParseResult(const int pos, const int length);
 
     inline size_t position() const {
-      return pos;
+      return _position;
     }
 
     inline size_t size() const {
-      return length;
+      return _size;
     }
 
   private:
-    size_t pos;
-    size_t length;
+    size_t _position;
+    size_t _size;
   };
 
 }

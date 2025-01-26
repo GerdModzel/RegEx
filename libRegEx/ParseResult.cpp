@@ -2,5 +2,8 @@
 
 namespace regex {
 
-  ParseResult::ParseResult() {}
+  ParseResult::ParseResult(const int pos, const int size)
+    : _position(pos)
+    , _size(size) {
+  }
 }
