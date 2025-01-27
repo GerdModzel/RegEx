@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 
 #include "parse.h"
+#include "storageUtils.h"
+
+#include <iostream>
 
 TEST(ParseTest, EmptyExpression) {
   const auto results = regex::parse("sdfsdf", "");
@@ -19,4 +22,10 @@ TEST(ParseTest, characterSearch) {
   ASSERT_EQ(results[0].size(), 3);
   ASSERT_EQ(results[1].position(), 8);
   ASSERT_EQ(results[1].size(), 3);
+}
+
+TEST(Benchmark, characterSearch) {
+  const std::string text = loadWikiTestFile();
+  const auto results = regex::parse(text, "au.t.o.m.a.t.a.");
+  ASSERT_EQ(results.size(), 5);
 }
