@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <span>
+#include <future>
 
 namespace regex {
 
@@ -44,12 +45,12 @@ namespace regex {
     return {fragmentStack.top(), std::move(stateManager)};
   }
 
-  void addstate(std::vector<NfaState*>& list, NfaState* state, const unsigned listId)
+  void addstate(std::vector<const NfaState*>& list, const NfaState* state, const unsigned listId)
   {
     assert(state != nullptr);
 //    if (state->lastList == listId)
  //     return;
-    state->lastList = listId;
+  //  state->lastList = listId;
     if (state->type == NfaState::Type::split) {
       /* follow unlabeled arrows */
       for (const auto& nextState : state->nextStates)
@@ -59,8 +60,8 @@ namespace regex {
     list.push_back(state);
   }
 
-  std::vector<NfaState*> step(const std::vector<NfaState*>& oldStateList, char ch, const unsigned listId) {
-    std::vector<NfaState*> newStateList;
+  std::vector<const NfaState*> step(const std::vector<const NfaState*>& oldStateList, char ch, const unsigned listId) {
+    std::vector<const NfaState*> newStateList;
  
     for (const auto oldState : oldStateList) {
       if (oldState->type == NfaState::Type::ch && oldState->ch == ch)
@@ -70,13 +71,13 @@ namespace regex {
     return newStateList;
   }
 
-  bool ismatch(const std::vector<NfaState*>& stateList) {
+  bool ismatch(const std::vector<const NfaState*>& stateList) {
     return std::any_of(stateList.cbegin(), stateList.cend(), [](const NfaState* state) {return state->type == NfaState::Type::match; });
   }
 
-  unsigned walkThroughNfa(NfaState* startState, std::string_view text) {
+  unsigned walkThroughNfa(const NfaState* startState, std::string_view text) {
     unsigned listId = 1;
-    std::vector<NfaState*> stateList;
+    std::vector<const NfaState*> stateList;
     
     addstate(stateList, startState, listId);
 
@@ -103,7 +104,10 @@ namespace regex {
     
     for (int i = 0; i < text.size(); ++i) {
       std::string_view subText = text.substr(i, text.size());
-      const unsigned size = walkThroughNfa(nfa.startState, subText);
+ 
+//      auto future = std::async(std::launch::async, [&nfa, subText]() {})
+
+     const unsigned size = walkThroughNfa(nfa.startState, subText);
       if (size > 0)
         results.emplace_back(i, size);
     }
