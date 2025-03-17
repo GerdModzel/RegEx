@@ -13,7 +13,7 @@ namespace regex {
       *nextState = state;
   }
 
-  std::pair<NfaFragment, std::vector<std::unique_ptr<NfaState>>>  buildNfaList(std::string_view expr) {
+  std::pair<NfaFragment, std::vector<std::unique_ptr<NfaState>>>  buildNfaList(const regex::Expression& expr) {
     std::stack<NfaFragment> fragmentStack;
     std::vector<std::unique_ptr<NfaState>> stateManager;
 
@@ -95,7 +95,7 @@ namespace regex {
 
 
 
-  std::vector<ParseResult> parse(std::string_view text, std::string_view expr) {
+  std::vector<ParseResult> parse(std::string_view text, const regex::Expression& expr) {
     if (text.empty() || expr.empty())
       return {};
 
