@@ -17,9 +17,11 @@ namespace regex {
   NfaFragment NfaBuilder::build() {
     std::stack<NfaFragment> fragmentStack;
 
-    for (auto ch : expr) {
-      switch (ch) {
-        case '.': {
+    for (auto cit = expr.cbegin(); cit!=expr.cend(); ++cit) {
+      const regex::Character ch = *cit;
+      switch (ch.type) {
+        case CharacterType::Concatenation: {
+          assert(fragmentStack.size() >= 2);
           auto fragSecond = fragmentStack.top();
           fragmentStack.pop();
           auto fragFirst = fragmentStack.top();
@@ -28,13 +30,15 @@ namespace regex {
           fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);
           break;
         }
-        default: {
-          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::make_optional(ch), std::vector<NfaState*>{1, nullptr}, 0));
+        case CharacterType::Literal: {
+          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, ch.value, std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
           auto& output = state->nextStates[0];
           fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
           break;
         }
+        default:
+          throw std::exception("Unsupported character type in NFA construction");
       }
     }
     stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{}, 0));

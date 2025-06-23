@@ -16,7 +16,7 @@ TEST(ParseTest, EmptyText) {
 }
 
 TEST(ParseTest, characterSearch) {
-  const auto results = regex::parse("asbcdefbbcd", "bc.d.");
+  const auto results = regex::parse("asbcdefbbcd", "bcd");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 2);
   ASSERT_EQ(results[0].size(), 3);
@@ -26,6 +26,6 @@ TEST(ParseTest, characterSearch) {
 
 TEST(Benchmark, characterSearch) {
   const std::string text = loadWikiTestFile();
-  const auto results = regex::parse(text, "au.t.o.m.a.t.a.");
+  const auto results = regex::parse(text, "automata");
   ASSERT_EQ(results.size(), 5);
 }

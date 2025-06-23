@@ -59,9 +59,11 @@ namespace regex {
 
 
 
-  std::vector<ParseResult> parse(std::string_view text, const regex::Expression& expr) {
-    if (text.empty() || expr.empty())
+  std::vector<ParseResult> parse(std::string_view text, std::string_view searchString) {
+    if (text.empty() || searchString.empty())
       return {};
+
+    Expression expr(searchString);
 
     NfaBuilder nfaBuilder(expr);
     const auto nfa = nfaBuilder.build();
