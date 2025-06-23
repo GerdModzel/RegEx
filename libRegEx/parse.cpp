@@ -1,49 +1,13 @@
 ﻿#include "parse.h"
 
 #include "NfaState.h"
+#include "NfaBuilder.h"
 
 #include <iostream>
 #include <span>
 #include <future>
 
 namespace regex {
-
-  void patch(std::vector<NfaState**>& ptrList, NfaState* state) {
-    for (auto& nextState : ptrList)
-      *nextState = state;
-  }
-
-  std::pair<NfaFragment, std::vector<std::unique_ptr<NfaState>>>  buildNfaList(const regex::Expression& expr) {
-    std::stack<NfaFragment> fragmentStack;
-    std::vector<std::unique_ptr<NfaState>> stateManager;
-
-    for (auto ch : expr) {
-      switch (ch) {
-        case '.': {
-          auto fragSecond = fragmentStack.top();
-          fragmentStack.pop();
-          auto fragFirst = fragmentStack.top();
-          fragmentStack.pop();
-          patch(fragFirst.nextStates, fragSecond.startState);
-          fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);
-          break;
-        }
-        default: {
-          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::make_optional(ch), std::vector<NfaState*>{1, nullptr}, 0));
-          auto state = stateManager.back().get();
-          auto& output = state->nextStates[0];
-          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
-          break;
-        }
-      }
-    }
-    stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{}, 0));
-    auto matchState = stateManager.back().get();
- 
-    patch(fragmentStack.top().nextStates, matchState);
-    assert(fragmentStack.size() == 1);
-    return {fragmentStack.top(), std::move(stateManager)};
-  }
 
   void addstate(std::vector<const NfaState*>& list, const NfaState* state, const unsigned listId)
   {
@@ -99,17 +63,16 @@ namespace regex {
     if (text.empty() || expr.empty())
       return {};
 
-    const auto [nfa, stateManager] = buildNfaList(expr);
+    NfaBuilder nfaBuilder(expr);
+    const auto nfa = nfaBuilder.build();
     std::vector<ParseResult> results;
     
     for (int i = 0; i < text.size(); ++i) {
       std::string_view subText = text.substr(i, text.size());
  
-//      auto future = std::async(std::launch::async, [&nfa, subText]() {})
-
      const unsigned size = walkThroughNfa(nfa.startState, subText);
-      if (size > 0)
-        results.emplace_back(i, size);
+     if (size > 0)
+       results.emplace_back(i, size);
     }
     return results;
   }
