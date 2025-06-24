@@ -22,9 +22,9 @@ namespace regex {
       switch (ch.type) {
         case CharacterType::Concatenation: {
           assert(fragmentStack.size() >= 2);
-          auto fragSecond = fragmentStack.top();
+          NfaFragment fragSecond = fragmentStack.top();
           fragmentStack.pop();
-          auto fragFirst = fragmentStack.top();
+          NfaFragment fragFirst = fragmentStack.top();
           fragmentStack.pop();
           patch(fragFirst.nextStates, fragSecond.startState);
           fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);

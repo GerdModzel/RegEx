@@ -11,7 +11,7 @@ FetchContent_MakeAvailable(googletest)
 
 
 # Tests need to be added as executables first
-add_executable(testLibRegEx src/testParse.cpp src/storageUtils.cpp)
+add_executable(testLibRegEx src/testParse.cpp src/storageUtils.cpp src/testExpression.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(testLibRegEx PRIVATE cxx_std_20)
