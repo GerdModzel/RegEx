@@ -1,6 +1,6 @@
 ﻿file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../inc/*.h")
 
-add_library(libRegEx parse.cpp ParseResult.cpp NfaState.cpp NfaBuilder.cpp Expression.cpp ${HEADER_LIST})
+add_library(libRegEx parse.cpp ParseResult.cpp NfaState.cpp NfaBuilder.cpp Expression.cpp prepareTextPartitionByNumberOfHits.cpp ${HEADER_LIST})
 
 target_include_directories(libRegEx PUBLIC ../inc)
 
