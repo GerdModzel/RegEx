@@ -5,7 +5,7 @@
 
 namespace regex {
 
-  HitMask prepareTextPartitionByNumberOfHits(const std::vector<ParseResult>& parseResults, const size_t textLength) {
+  HitMask calculateHitMask(const std::vector<ParseResult>& parseResults, const size_t textLength) {
     HitMask hitMask(textLength, 0);
     for (const auto& current : parseResults) {
 
