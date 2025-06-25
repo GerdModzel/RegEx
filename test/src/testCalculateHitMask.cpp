@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "prepareTextPartitionByNumberOfHits.h"
+#include "calculateHitMask.h"
 
-TEST(PartitionTextTest, PositionOutOfBounds) {
+TEST(CalculateHitMaskTest, PositionOutOfBounds) {
 const size_t textLength = 123;
   const std::vector<regex::ParseResult> input{
       regex::ParseResult{150, 1} };
@@ -10,7 +10,7 @@ const size_t textLength = 123;
   ASSERT_THROW(calculateHitMask(input, textLength), std::out_of_range);
 }
 
-TEST(PartitionTextTest, LengthOutOfBounds) {
+TEST(CalculateHitMaskTest, LengthOutOfBounds) {
   const size_t textLength = 123;
   const std::vector<regex::ParseResult> input{
       regex::ParseResult{5, 1000} };
@@ -18,7 +18,7 @@ TEST(PartitionTextTest, LengthOutOfBounds) {
   ASSERT_THROW(calculateHitMask(input, textLength), std::out_of_range);
 }
 
-TEST(PartitionTextTest, NoHits) {
+TEST(CalculateHitMaskTest, NoHits) {
   const size_t textLength = 4;
   const std::vector<regex::ParseResult> input{};
 
@@ -28,7 +28,7 @@ TEST(PartitionTextTest, NoHits) {
   EXPECT_EQ(actualReturn, expectedReturn);
 }
 
-TEST(PartitionTextTest, TwoBorderHits) {
+TEST(CalculateHitMaskTest, TwoBorderHits) {
   const size_t textLength = 7;
   const std::vector<regex::ParseResult> input{
     regex::ParseResult{0, 2}
@@ -42,7 +42,7 @@ TEST(PartitionTextTest, TwoBorderHits) {
 }
 
 
-TEST(PartitionTextTest, OneMiddleHit) {
+TEST(CalculateHitMaskTest, OneMiddleHit) {
   const size_t textLength = 7;
   const std::vector<regex::ParseResult> input{{3, 1}};
 
@@ -52,7 +52,7 @@ TEST(PartitionTextTest, OneMiddleHit) {
   EXPECT_EQ(actualReturn, expectedReturn);
 }
 
-TEST(PartitionTextTest, OverlappingHits) {
+TEST(CalculateHitMaskTest, OverlappingHits) {
   const size_t textLength = 11;
   const std::vector<regex::ParseResult> parseResults{
     regex::ParseResult{1, 6}

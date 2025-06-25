@@ -1,4 +1,4 @@
-#include "prepareTextPartitionByNumberOfHits.h"
+#include "calculateHitMask.h"
 
 #include <algorithm>
 #include <vector>
