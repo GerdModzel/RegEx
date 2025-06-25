@@ -18,7 +18,7 @@ TEST(ExpressionTest, Empty) {
   ASSERT_TRUE(expr.cbegin() == expr.cend());
 }
 
-TEST(ExpressionTest_Empty_Test, SingleCharacter) {
+TEST(ExpressionTest_Empty, SingleCharacter) {
   regex::Expression expr("a");
   ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 1);
   assertCharacter(*expr.cbegin(), regex::CharacterType::Literal, 'a');
