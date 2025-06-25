@@ -76,7 +76,7 @@ TEST(PartitionTextTest, OverlappingHits) {
   , regex::ParseResult{10, 4}
   };
   const std::vector<regex::TextPartitionInfo> results = prepareTextPartitionByNumberOfHits(parseResults, textLength);
-  ASSERT_EQ(results.size(), 3);
+  ASSERT_EQ(results.size(), 2);
   auto toCompare = results.begin();
   {
     const regex::TextPartitionInfo part{.partPosition = 0, .partLength = 5, .nHits = 0 };
@@ -99,4 +99,37 @@ TEST(PartitionTextTest, OverlappingHits) {
     EXPECT_EQ(*toCompare, part);
     ++toCompare;
   }
+}
+
+TEST(PartitionTextTest, EngulfedHit) {
+  const size_t textLength = 123;
+  const std::vector<regex::ParseResult> parseResults{
+    regex::ParseResult{54, 34}
+  , regex::ParseResult{60, 12}
+  };
+  const std::vector<regex::TextPartitionInfo> results = prepareTextPartitionByNumberOfHits(parseResults, textLength);
+  ASSERT_EQ(results.size(), 2);
+  auto toCompare = results.begin();
+  {
+    const regex::TextPartitionInfo part{.partPosition = 0, .partLength = 54, .nHits = 0 };
+    EXPECT_EQ(*toCompare, part);
+    ++toCompare;
+  } {
+    const regex::TextPartitionInfo part{.partPosition = 54, .partLength = 6, .nHits = 1 };
+    EXPECT_EQ(*toCompare, part);
+    ++toCompare;
+  } {
+    const regex::TextPartitionInfo part{.partPosition = 60, .partLength = 12, .nHits = 2 };
+    EXPECT_EQ(*toCompare, part);
+    ++toCompare;
+  } {
+    const regex::TextPartitionInfo part{.partPosition = 72, .partLength = 16, .nHits = 1 };
+    EXPECT_EQ(*toCompare, part);
+    ++toCompare;
+  } {
+    const regex::TextPartitionInfo part{.partPosition = 88, .partLength = 123 - 88, .nHits = 0 };
+    EXPECT_EQ(*toCompare, part);
+    ++toCompare;
+  } {
+ 
 }
