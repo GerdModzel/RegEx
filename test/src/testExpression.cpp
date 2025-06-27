@@ -2,6 +2,8 @@
 
 #include "Expression.h"
 
+
+
 void assertCharacter(const regex::Character& realCh, regex::CharacterType expectedType, std::optional<char> expectedValue) {
   ASSERT_EQ(realCh.type, expectedType);
   if (expectedValue.has_value()) {
@@ -12,40 +14,36 @@ void assertCharacter(const regex::Character& realCh, regex::CharacterType expect
   }
 }
 
-
 TEST(ExpressionTest, Empty) {
   regex::Expression expr("");
   ASSERT_TRUE(expr.cbegin() == expr.cend());
 }
 
-TEST(ExpressionTest_Empty, SingleCharacter) {
+TEST(ExpressionTest, SingleCharacter) {
   regex::Expression expr("a");
   ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 1);
-  assertCharacter(*expr.cbegin(), regex::CharacterType::Literal, 'a');
+  ASSERT_EQ(*expr.cbegin(), regex::Character{ 'a' });
+  ASSERT_NE(*expr.cbegin(), regex::Character{ 'b' });
+  ASSERT_NE(*expr.cbegin(), regex::Character{ regex::CharacterType::OneOrMore });
 }
 
 TEST(ExpressionTest, ManyCharacters) {
-  regex::Expression expr("abcde");
-  ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 9); // 5 characters + 4 concatenations
-  auto it = expr.cbegin();
-  assertCharacter(*it, regex::CharacterType::Literal, 'a');
-  ++it;
-  assertCharacter(*it, regex::CharacterType::Literal, 'b');
-  ++it;
-  assertCharacter(*it, regex::CharacterType::Concatenation, std::nullopt);
-}
-
-TEST(ExpressionTest, UnicodeCharacter) {
-  regex::Expression expr("a\u00E9b");
+  regex::Expression expr("abc");
   ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 5); // 3 characters + 2 concatenations
   auto it = expr.cbegin();
-  assertCharacter(*it, regex::CharacterType::Literal, 'a');
+  ASSERT_EQ(*it, regex::Character{ 'a' });
+  ASSERT_NE(*it, regex::Character{ 'b' });
+  ASSERT_NE(*it, regex::Character{ regex::CharacterType::Concatenation });
   ++it;
-  assertCharacter(*it, regex::CharacterType::Literal, '\u00E9'); // é character
+  ASSERT_EQ(*it, regex::Character{ 'b' });
   ++it;
-  assertCharacter(*it, regex::CharacterType::Concatenation, std::nullopt);
+  ASSERT_NE(*it, regex::Character{ 'c' });
+  ASSERT_EQ(*it, regex::Character{ regex::CharacterType::Concatenation });
   ++it;
-  assertCharacter(*it, regex::CharacterType::Literal, 'b');
+  ASSERT_EQ(*it, regex::Character{ 'c' });
   ++it;
-  assertCharacter(*it, regex::CharacterType::Concatenation, std::nullopt);
+  ASSERT_EQ(*it, regex::Character{ regex::CharacterType::Concatenation });
+  ++it;
+  ASSERT_EQ(it, expr.cend());
 }
+

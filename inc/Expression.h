@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string_view>
+#include <string>
 #include <vector>
 #include <optional>
+#include <iostream>
 
 namespace regex {
 
@@ -29,6 +31,19 @@ namespace regex {
     CharacterType const type;
     std::optional<char> const value;
   };
+
+  inline bool operator==(const Character& lhs, const Character& rhs) {
+    return lhs.type == rhs.type && (!lhs.value.has_value() && !rhs.value.has_value() || lhs.value == rhs.value);
+  }
+
+  inline std::ostream& operator<<(std::ostream& os, const Character& character) {
+    if (character.value.has_value()) {
+      os << "Character(" << static_cast<int>(character.type) << ", '" << character.value.value() << "')";
+    } else {
+      os << "Character(" << static_cast<int>(character.type) << ")";
+    }
+    return os;
+  }
 
   class Expression {
   public:
