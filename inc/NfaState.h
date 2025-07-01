@@ -17,6 +17,7 @@ namespace regex {
     enum class Type {ch, split, match};
 
     Type type;
+    // std::nullopt: type != ch or character is wildcard character and matches any character
     std::optional<char> ch;
     std::vector<NfaState*> nextStates;
     int lastList;

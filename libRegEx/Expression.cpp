@@ -6,11 +6,17 @@ namespace regex {
     bool firstCh = true;
     for (auto ch : searchString) {
       switch (ch) {
+        case '.': {
+        characters.emplace_back(CharacterType::Wildcard);
+        if (!firstCh)
+          characters.emplace_back(CharacterType::Concatenation);
+        firstCh = false;
+        break;
+        }
       default: {
         characters.emplace_back(ch);
-        if (!firstCh) {
+        if (!firstCh)
           characters.emplace_back(CharacterType::Concatenation);
-        }
         firstCh = false;
       }
       }

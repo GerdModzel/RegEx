@@ -1,12 +1,15 @@
 #pragma once
 
 #include <string_view>
+#include <stack>
 
 #include "NfaState.h"
 #include "Expression.h"
 
 
 namespace regex {
+
+  using FragmentStack = std::stack<NfaFragment>;
 
 class NfaBuilder {
 	public:
@@ -18,3 +21,4 @@ class NfaBuilder {
 	};
 
 }
+

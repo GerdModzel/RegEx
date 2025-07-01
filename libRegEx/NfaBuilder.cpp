@@ -15,7 +15,7 @@ namespace regex {
   }
 
   NfaFragment NfaBuilder::build() {
-    std::stack<NfaFragment> fragmentStack;
+    FragmentStack fragmentStack;
 
     for (auto cit = expr.cbegin(); cit!=expr.cend(); ++cit) {
       const regex::Character ch = *cit;
@@ -30,6 +30,13 @@ namespace regex {
           fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);
           break;
         }
+        case CharacterType::Wildcard: {
+          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, std::vector<NfaState*>{1, nullptr}, 0));
+          auto state = stateManager.back().get();
+          auto& output = state->nextStates[0];
+          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
+          break;
+                                         }
         case CharacterType::Literal: {
           stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, ch.value, std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();

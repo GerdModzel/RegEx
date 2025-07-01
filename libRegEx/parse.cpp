@@ -28,7 +28,7 @@ namespace regex {
     std::vector<const NfaState*> newStateList;
  
     for (const auto oldState : oldStateList) {
-      if (oldState->type == NfaState::Type::ch && oldState->ch == ch)
+      if (oldState->type == NfaState::Type::ch && oldState->ch.value_or(ch) == ch)
         for (const auto& nextState : oldState->nextStates)
           addstate(newStateList, nextState, listId);
     }
