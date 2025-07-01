@@ -9,13 +9,13 @@
 namespace regex {
 
   enum class CharacterType
-  { Literal
-  , Wildcard
-  , OneOrMore
-  , ZeroOrMore
-  , ZeroOrOne
-  , AnyCharacter
-  , Concatenation
+  {
+    Literal           // 'a', 'b', 'c', etc.: matches the literal character
+  , Wildcard          // '.': matches any single character
+  , OneOrMore         // '+': matches the preceding element one or more times
+  , ZeroOrMore        // '*': matches the preceding element zero or more times
+  , ZeroOrOne         // '?': matches the preceding element zero or one time
+  , Concatenation     // is inferred between items, not explicitly represented: e.g., "ab" is treated as 'a' followed by 'b'
   };
 
   struct Character {
