@@ -9,55 +9,54 @@
 
 namespace regex {
 
-  void addstate(std::vector<const NfaState*>& list, const NfaState* state, const unsigned listId)
+  void addstate(std::vector<NfaState*>& list, NfaState* state, const size_t counter)
   {
     assert(state != nullptr);
-//    if (state->lastList == listId)
- //     return;
-  //  state->lastList = listId;
     if (state->type == NfaState::Type::split) {
-      /* follow unlabeled arrows */
       for (const auto& nextState : state->nextStates)
-        addstate(list, nextState, listId);
+        addstate(list, nextState, counter);
       return;
     }
+    state->nSteps = counter;
     list.push_back(state);
   }
 
-  std::vector<const NfaState*> step(const std::vector<const NfaState*>& oldStateList, char ch, const unsigned listId) {
-    std::vector<const NfaState*> newStateList;
- 
-    for (const auto oldState : oldStateList) {
-      if (oldState->type == NfaState::Type::ch && oldState->ch.value_or(ch) == ch)
-        for (const auto& nextState : oldState->nextStates)
-          addstate(newStateList, nextState, listId);
+  void step(const std::vector<NfaState*>& currentStateList, std::vector<NfaState*>& nextStateList, char ch) {
+    for (const auto currentState : currentStateList) {
+      if (currentState->type == NfaState::Type::ch && currentState->ch.value_or(ch) == ch)
+        for (const auto& nextState : currentState->nextStates)
+          addstate(nextStateList, nextState, currentState->nSteps + 1);
     }
-    return newStateList;
   }
 
   bool ismatch(const std::vector<const NfaState*>& stateList) {
     return std::any_of(stateList.cbegin(), stateList.cend(), [](const NfaState* state) {return state->type == NfaState::Type::match; });
   }
 
-  unsigned walkThroughNfa(const NfaState* startState, std::string_view text) {
-    unsigned listId = 1;
-    std::vector<const NfaState*> stateList;
-    
-    addstate(stateList, startState, listId);
-
-    for (const auto ch : text) {
-      ++listId;
-      stateList = step(stateList, ch, listId);
-      if (ismatch(stateList))
-        return listId - 1;
-      if (stateList.empty())
-        return 0;
+  void extractMatches(const std::vector<NfaState*>& stateList, std::vector<ParseResult>& matchList, const size_t counter) {
+    for (const auto& state : stateList) {
+      if (state->type == NfaState::Type::match)
+        matchList.emplace_back(counter - (state->nSteps - 1), state->nSteps);
     }
-    return 0;
   }
 
-
-
+  std::vector<ParseResult> walkThroughNfa(NfaState* startState, std::string_view text) {
+    std::vector<ParseResult> resultList;
+    std::vector<NfaState*> cStateList, nStateList;
+    std::vector<NfaState*>& currentStateList = cStateList;
+    std::vector<NfaState*>& nextStateList = nStateList;
+    size_t characterCounter = 0;
+    
+    for (const auto ch : text) {
+      currentStateList.swap(nextStateList);
+      nextStateList.clear();
+      addstate(currentStateList, startState, 0);
+      step(currentStateList, nextStateList, ch);
+      extractMatches(nextStateList, resultList, characterCounter);
+      ++characterCounter;
+    }
+    return resultList;
+  }
 
   std::vector<ParseResult> parse(std::string_view text, std::string_view searchString) {
     if (text.empty() || searchString.empty())
@@ -66,17 +65,10 @@ namespace regex {
     Expression expr(searchString);
 
     NfaBuilder nfaBuilder(expr);
-    const auto nfa = nfaBuilder.build();
+    NfaFragment nfa = nfaBuilder.build();
     std::vector<ParseResult> results;
     
-    for (int i = 0; i < text.size(); ++i) {
-      std::string_view subText = text.substr(i, text.size());
- 
-     const unsigned size = walkThroughNfa(nfa.startState, subText);
-     if (size > 0)
-       results.emplace_back(i, size);
-    }
-    return results;
+    return walkThroughNfa(nfa.startState, text);
   }
 
 }
