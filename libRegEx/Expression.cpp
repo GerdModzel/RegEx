@@ -13,6 +13,11 @@ namespace regex {
         firstCh = false;
         break;
         }
+        case '+': {
+        if (!firstCh)
+          characters.emplace_back(CharacterType::OneOrMore);
+        break;
+        }
       default: {
         characters.emplace_back(ch);
         if (!firstCh)

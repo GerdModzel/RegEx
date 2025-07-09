@@ -33,6 +33,19 @@ TEST(ParseTest, characterSearchWithWildcard) {
   ASSERT_EQ(results[1].size(), 3);
 }
 
+TEST(ParseTest, characterSearchWithOneOrMore) {
+  const auto results = regex::parse("asbcdefbbbc", "b+c");
+  ASSERT_EQ(results.size(), 4);
+  ASSERT_EQ(results[0].position(), 2);
+  ASSERT_EQ(results[0].size(), 2);
+  ASSERT_EQ(results[1].position(), 7);
+  ASSERT_EQ(results[1].size(), 4);
+  ASSERT_EQ(results[2].position(), 7);
+  ASSERT_EQ(results[2].size(), 4);
+  ASSERT_EQ(results[3].position(), 7);
+  ASSERT_EQ(results[3].size(), 4);
+}
+
 TEST(Benchmark, characterSearch) {
   const std::string text = loadWikiTestFile();
   const auto results = regex::parse(text, "automata");
