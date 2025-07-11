@@ -21,4 +21,8 @@ namespace regex {
     size_t _size;
   };
 
+  inline bool operator==(const ParseResult& lhs, const ParseResult& rhs) {
+    return lhs.position() == rhs.position() && lhs.size() == rhs.size();
+  }
+
 }

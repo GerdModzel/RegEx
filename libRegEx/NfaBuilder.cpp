@@ -37,6 +37,16 @@ namespace regex {
           fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
           break;
         }
+        case CharacterType::ZeroOrMore: {
+          assert(fragmentStack.size() >= 1);
+          NfaFragment frag = fragmentStack.top();
+          fragmentStack.pop();
+          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{frag.startState, nullptr}, 0));
+          auto zeroOrMoreState = stateManager.back().get();
+          patch(frag.nextStates, zeroOrMoreState);
+          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&zeroOrMoreState->nextStates[1]});
+          break;
+        }
         case CharacterType::OneOrMore: {
           assert(fragmentStack.size() >= 1);
           NfaFragment frag = fragmentStack.top();
