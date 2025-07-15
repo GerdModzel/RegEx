@@ -20,7 +20,7 @@ namespace regex {
     // std::nullopt: type != ch or character is wildcard character and matches any character
     std::optional<char> ch;
     std::vector<NfaState*> nextStates;
-    int nSteps = 0;
+    size_t nSteps = 0;
   };
 
   struct NfaFragment {

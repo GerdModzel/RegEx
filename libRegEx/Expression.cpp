@@ -1,36 +1,175 @@
 #include "Expression.h"
 
+#include <stack>
+#include <cassert>
+#include <algorithm>
+
 namespace regex {
 
-  Expression::Expression(std::string_view searchString) {
-    bool firstCh = true;
-    for (auto ch : searchString) {
-      switch (ch) {
-        case '.': {
-        characters.emplace_back(CharacterType::Wildcard);
-        if (!firstCh)
-          characters.emplace_back(CharacterType::Concatenation);
-        firstCh = false;
-        break;
-        }
-        case '*': {
-        if (!firstCh)
-          characters.emplace_back(CharacterType::ZeroOrMore);
-        break;
-        }
-        case '+': {
-        if (!firstCh)
+    std::vector<Character> replaceCharsWithOperators(std::string_view searchString) {
+      std::vector<Character> characters;
+      for (auto ch : searchString) {
+        switch (ch) {
+        case '.':
+          characters.emplace_back(CharacterType::Wildcard);
+          break;
+        case '+':
           characters.emplace_back(CharacterType::OneOrMore);
-        break;
+          break;
+        case '*':
+          characters.emplace_back(CharacterType::ZeroOrMore);
+          break;
+        case '?':
+          characters.emplace_back(CharacterType::ZeroOrOne);
+          break;
+        case '|':
+          characters.emplace_back(CharacterType::Alternation);
+          break;
+         case '(':
+          characters.emplace_back(CharacterType::GroupingStart);
+          break;
+        case ')':
+          characters.emplace_back(CharacterType::GroupingEnd);
+          break;
+        default:
+          characters.emplace_back(ch);
         }
-      default: {
-        characters.emplace_back(ch);
-        if (!firstCh)
-          characters.emplace_back(CharacterType::Concatenation);
-        firstCh = false;
       }
+      return characters;
+    }
+
+    std::vector<Character> addConcatenationOperators(const std::vector<Character>& input) {
+      std::vector<Character> output;
+      for (auto it = input.begin(); it != input.end(); ++it) {
+        assert(it->getType() != CharacterType::Concatenation);
+        output.push_back(*it);
+        if (
+          it->getType() != CharacterType::Alternation
+       && it->getType() != CharacterType::GroupingStart
+       && std::next(it) != input.end()
+       && std::next(it)->getType() != CharacterType::GroupingEnd
+       && !isOperation(std::next(it)->getType())) {
+          output.emplace_back(CharacterType::Concatenation);
+        }
+      }
+      return output;
+    }
+
+    using VectorChar = std::vector<Character>;
+    using VectorExpr = std::vector<VectorChar>;
+
+    std::stack<std::pair<VectorExpr::iterator, VectorExpr::iterator>> findOuterGroupings(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      VectorChar groupingStart{ 1, Character{CharacterType::GroupingStart} };
+      VectorChar groupingEnd{ 1, Character{CharacterType::GroupingEnd} };
+      std::stack<VectorExpr::iterator> groupingStartStack;
+      std::stack<std::pair<VectorExpr::iterator, VectorExpr::iterator>> groupingStack;
+      for (auto it = begin; it != end; ++it) {
+        if (*it == groupingStart) {
+          groupingStartStack.push(it);
+        }
+        else if (*it == groupingEnd) {
+          if (groupingStartStack.empty())
+            throw std::runtime_error("Unmatched grouping end");
+          auto start = groupingStartStack.top();
+          groupingStartStack.pop();
+          if (groupingStartStack.empty())
+            groupingStack.push({ start, it });
+        }
+      }
+      if (!groupingStartStack.empty())
+        throw std::runtime_error("Unmatched grouping start");
+      return groupingStack;
+    }
+
+    void mergeGroupings(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      auto groupingStack = findOuterGroupings(begin, end);
+      while (!groupingStack.empty()) {
+        auto [groupBegin, groupEnd] = groupingStack.top();
+        groupingStack.pop();
+        groupBegin->clear();
+        groupEnd->clear();
+        if (groupBegin + 1 < groupEnd) // check that the group is not empty
+          orderExpression(groupBegin + 1, groupEnd); // begin iterator points to first element, end iterator to group closing
+     }
+   }
+
+    VectorExpr::iterator getPreviousCharacter(VectorExpr::iterator it, VectorExpr::iterator begin) {
+      do {
+        if (it == begin)
+          throw std::runtime_error("Expression/grouping starts with an operator");
+        --it;
+      } while (it->empty());
+      return it;
+    }
+
+    VectorExpr::iterator getNextCharacter(VectorExpr::iterator it, VectorExpr::iterator end) {
+      do {
+        if (it + 1 == end)
+          throw std::runtime_error("Expression/grouping ends with an operator");
+        ++it;
+      } while (it->empty());
+      return it;
+    }
+
+
+    void mergeOperatorsWithTwoArguments(const VectorExpr::iterator begin, const VectorExpr::iterator end, bool (*typeCheck)(const CharacterType)) {
+      for (auto it = begin; it != end;) { // iterator incrementation is done in the body
+        if (it->size() == 1 && typeCheck(it->at(0).getType())) {
+          auto op = it;
+          auto argLeft = getPreviousCharacter(it, begin);
+          auto argRight = getNextCharacter(it, end);
+          argLeft->insert(argLeft->end(), argRight->begin(), argRight->end()); // append right argument
+          argLeft->insert(argLeft->end(), op->begin(), op->end()); // append operator at the end
+          op->clear(); // delete operator (now superfluous)
+          argRight->clear(); // delete right argument (now superfluous)
+          it = argRight + 1;
+        }
+        else
+          ++it;
       }
     }
+
+    void mergeAlternations(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      mergeOperatorsWithTwoArguments(begin, end, &isAlternation);
+    }
+
+    void mergeConcatenations(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      mergeOperatorsWithTwoArguments(begin, end, &isConcatenation);
+    }
+
+    void mergeRepetitions(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      for (auto it = begin; it != end; ++it) {
+        if (it->size() == 1 && isRepition(it->at(0).getType())) {
+          auto op = it;
+          auto arg = getPreviousCharacter(it, begin);
+          arg->insert(arg->end(), op->begin(), op->end()); // append operator to argument
+          op->clear(); // delete operator (now superfluous)
+        }
+      }
+    }
+
+    VectorExpr convertToVectorExpression(const VectorChar& arg) {
+      VectorExpr result;
+      for (const auto& el : arg)
+        result.emplace_back(1, el);
+      return result;
+    }
+
+    void orderExpression(VectorExpr::iterator begin, VectorExpr::iterator end) {
+      mergeGroupings(begin, end);
+      mergeRepetitions(begin, end);
+      mergeConcatenations(begin, end);
+      mergeAlternations(begin, end);
+    }
+
+  Expression::Expression(std::string_view searchString) {
+    const auto replacedCharacters = replaceCharsWithOperators(searchString);
+    const auto addedConcatenation = addConcatenationOperators(replacedCharacters);
+    auto result = convertToVectorExpression(addedConcatenation);
+    orderExpression(result.begin(), result.end());
+
+    for (const auto& ch : result)
+      characters.insert(characters.end(), ch.begin(), ch.end());
   }
 
 }

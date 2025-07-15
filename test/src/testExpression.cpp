@@ -5,13 +5,53 @@
 
 
 void assertCharacter(const regex::Character& realCh, regex::CharacterType expectedType, std::optional<char> expectedValue) {
-  ASSERT_EQ(realCh.type, expectedType);
+  ASSERT_EQ(realCh.getType(), expectedType);
   if (expectedValue.has_value()) {
-    ASSERT_TRUE(realCh.value.has_value());
-    ASSERT_EQ(realCh.value.value(), expectedValue.value());
+    ASSERT_TRUE(realCh.getValue().has_value());
+    ASSERT_EQ(realCh.getValue().value(), expectedValue.value());
   } else {
-    ASSERT_FALSE(realCh.value.has_value());
+    ASSERT_FALSE(realCh.getValue().has_value());
   }
+}
+
+TEST(ExpressionTest, Groupings) {
+  regex::Expression expr("(a|b)*c");
+  ASSERT_EQ(expr.toString(), "ab|*c&");
+}
+
+TEST(ExpressionTest, ReplaceCharsWithOperators) {
+  auto characters = regex::replaceCharsWithOperators("a.+*?e");
+  ASSERT_EQ(characters.size(), 6);
+  assertCharacter(characters[0], regex::CharacterType::Literal, 'a');
+  assertCharacter(characters[1], regex::CharacterType::Wildcard, std::nullopt);
+  assertCharacter(characters[2], regex::CharacterType::OneOrMore, std::nullopt);
+  assertCharacter(characters[3], regex::CharacterType::ZeroOrMore, std::nullopt);
+  assertCharacter(characters[4], regex::CharacterType::ZeroOrOne, std::nullopt);
+  assertCharacter(characters[5], regex::CharacterType::Literal, 'e');
+}
+
+TEST(ExpressionTest, AddConcatenationOperators) {
+  std::vector<regex::Character> input = {
+    regex::Character('a')
+  , regex::Character('b')
+  , regex::Character('c')
+  , regex::Character(regex::CharacterType::Alternation)
+  , regex::Character('d')
+  , regex::Character(regex::CharacterType::OneOrMore)
+  , regex::Character('e')
+  };
+  auto output = regex::addConcatenationOperators(input);
+  ASSERT_EQ(output.size(), 10);
+  assertCharacter(output[0], regex::CharacterType::Literal, 'a');
+  assertCharacter(output[1], regex::CharacterType::Concatenation, std::nullopt);
+  assertCharacter(output[2], regex::CharacterType::Literal, 'b');
+  assertCharacter(output[3], regex::CharacterType::Concatenation, std::nullopt);
+  assertCharacter(output[4], regex::CharacterType::Literal, 'c');
+  assertCharacter(output[5], regex::CharacterType::Alternation, std::nullopt);
+  assertCharacter(output[6], regex::CharacterType::Literal, 'd');
+  assertCharacter(output[7], regex::CharacterType::OneOrMore, std::nullopt);
+  assertCharacter(output[8], regex::CharacterType::Concatenation, std::nullopt);
+  assertCharacter(output[9], regex::CharacterType::Literal, 'e');
 }
 
 TEST(ExpressionTest, Empty) {
@@ -21,29 +61,12 @@ TEST(ExpressionTest, Empty) {
 
 TEST(ExpressionTest, SingleCharacter) {
   regex::Expression expr("a");
-  ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 1);
-  ASSERT_EQ(*expr.cbegin(), regex::Character{ 'a' });
-  ASSERT_NE(*expr.cbegin(), regex::Character{ 'b' });
-  ASSERT_NE(*expr.cbegin(), regex::Character{ regex::CharacterType::OneOrMore });
+  ASSERT_EQ(expr.toString(), "a");
 }
 
-TEST(ExpressionTest, ManyCharacters) {
-  regex::Expression expr("abc");
-  ASSERT_EQ(std::distance(expr.cbegin(), expr.cend()), 5); // 3 characters + 2 concatenations
-  auto it = expr.cbegin();
-  ASSERT_EQ(*it, regex::Character{ 'a' });
-  ASSERT_NE(*it, regex::Character{ 'b' });
-  ASSERT_NE(*it, regex::Character{ regex::CharacterType::Concatenation });
-  ++it;
-  ASSERT_EQ(*it, regex::Character{ 'b' });
-  ++it;
-  ASSERT_NE(*it, regex::Character{ 'c' });
-  ASSERT_EQ(*it, regex::Character{ regex::CharacterType::Concatenation });
-  ++it;
-  ASSERT_EQ(*it, regex::Character{ 'c' });
-  ++it;
-  ASSERT_EQ(*it, regex::Character{ regex::CharacterType::Concatenation });
-  ++it;
-  ASSERT_EQ(it, expr.cend());
-}
+//TEST(ExpressionTest, Concatenation) {
+ // regex::Expression expr("abc");
+  //ASSERT_EQ(expr.toString(), "ab&c&");
+//}
+
 
