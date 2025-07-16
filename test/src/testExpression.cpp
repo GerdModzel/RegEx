@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "Expression.h"
-#include "ExpressionBuilder.h"
-#include "ExpressionBuildFunctions.h"
-
+#include "Convenience.h"
 
 void assertCharacter(const regex::Operator& realCh, regex::OperatorType expectedType, std::optional<char> expectedValue) {
   ASSERT_EQ(realCh.getType(), expectedType);
@@ -16,8 +13,7 @@ void assertCharacter(const regex::Operator& realCh, regex::OperatorType expected
 }
 
 TEST(ExpressionTest, Groupings) {
-  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
-  regex::Expression expr = builder.build("(a|b)*c");
+  regex::Expression expr = regex::buildNfaExpression("(a|b)*c");
   ASSERT_EQ(expr.toString(), "ab|*c&");
 }
 
@@ -57,14 +53,12 @@ TEST(ExpressionTest, AddConcatenationOperators) {
 }
 
 TEST(ExpressionTest, Empty) {
-  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
-  regex::Expression expr = builder.build("");
+  regex::Expression expr = regex::buildNfaExpression("");
   ASSERT_TRUE(expr.cbegin() == expr.cend());
 }
 
 TEST(ExpressionTest, SingleCharacter) {
-  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
-  regex::Expression expr = builder.build("a");
+  regex::Expression expr = regex::buildNfaExpression("a");
   ASSERT_EQ(expr.toString(), "a");
 }
 
