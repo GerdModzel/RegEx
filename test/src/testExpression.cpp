@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "Expression.h"
-
+#include "ExpressionBuilder.h"
+#include "ExpressionBuildFunctions.h"
 
 
 void assertCharacter(const regex::Character& realCh, regex::CharacterType expectedType, std::optional<char> expectedValue) {
@@ -15,12 +16,13 @@ void assertCharacter(const regex::Character& realCh, regex::CharacterType expect
 }
 
 TEST(ExpressionTest, Groupings) {
-  regex::Expression expr("(a|b)*c");
+  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
+  regex::Expression expr = builder.build("(a|b)*c");
   ASSERT_EQ(expr.toString(), "ab|*c&");
 }
 
 TEST(ExpressionTest, ReplaceCharsWithOperators) {
-  auto characters = regex::replaceCharsWithOperators("a.+*?e");
+  auto characters = regex::convertStringToOperatorVector("a.+*?e");
   ASSERT_EQ(characters.size(), 6);
   assertCharacter(characters[0], regex::CharacterType::Literal, 'a');
   assertCharacter(characters[1], regex::CharacterType::Wildcard, std::nullopt);
@@ -55,12 +57,14 @@ TEST(ExpressionTest, AddConcatenationOperators) {
 }
 
 TEST(ExpressionTest, Empty) {
-  regex::Expression expr("");
+  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
+  regex::Expression expr = builder.build("");
   ASSERT_TRUE(expr.cbegin() == expr.cend());
 }
 
 TEST(ExpressionTest, SingleCharacter) {
-  regex::Expression expr("a");
+  regex::ExpressionBuilder builder{ &regex::buildExpressionArgumentsFirstOperatorLast };
+  regex::Expression expr = builder.build("a");
   ASSERT_EQ(expr.toString(), "a");
 }
 

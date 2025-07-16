@@ -2,6 +2,8 @@
 
 #include "NfaState.h"
 #include "NfaBuilder.h"
+#include "ExpressionBuilder.h"
+#include "ExpressionBuildFunctions.h"
 
 #include <iostream>
 #include <span>
@@ -62,7 +64,8 @@ namespace regex {
     if (text.empty() || searchString.empty())
       return {};
 
-    Expression expr(searchString);
+    ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
+    Expression expr = builder.build(searchString);
 
     NfaBuilder nfaBuilder(expr);
     NfaFragment nfa = nfaBuilder.build();
