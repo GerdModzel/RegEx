@@ -18,9 +18,9 @@ namespace regex {
     FragmentStack fragmentStack;
 
     for (auto cit = expr.cbegin(); cit!=expr.cend(); ++cit) {
-      const regex::Character ch = *cit;
+      const regex::Operator ch = *cit;
       switch (ch.getType()) {
-        case CharacterType::Concatenation: {
+        case OperatorType::Concatenation: {
           assert(fragmentStack.size() >= 2);
           NfaFragment fragSecond = fragmentStack.top();
           fragmentStack.pop();
@@ -30,14 +30,14 @@ namespace regex {
           fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);
           break;
         }
-        case CharacterType::Wildcard: {
+        case OperatorType::Wildcard: {
           stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
           auto& output = state->nextStates[0];
           fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output});
           break;
         }
-        case CharacterType::ZeroOrMore: {
+        case OperatorType::ZeroOrMore: {
           assert(fragmentStack.size() >= 1);
           NfaFragment frag = fragmentStack.top();
           fragmentStack.pop();
@@ -47,7 +47,7 @@ namespace regex {
           fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&zeroOrMoreState->nextStates[1]});
           break;
         }
-        case CharacterType::OneOrMore: {
+        case OperatorType::OneOrMore: {
           assert(fragmentStack.size() >= 1);
           NfaFragment frag = fragmentStack.top();
           fragmentStack.pop();
@@ -58,7 +58,7 @@ namespace regex {
           fragmentStack.emplace(frag.startState, std::vector<NfaState**>{&outputNextState});
           break;
         }
-        case CharacterType::ZeroOrOne: {
+        case OperatorType::ZeroOrOne: {
           assert(fragmentStack.size() >= 1);
           NfaFragment frag = fragmentStack.top();
           fragmentStack.pop();
@@ -67,7 +67,7 @@ namespace regex {
           fragmentStack.emplace(zeroOrOneState, std::vector<NfaState**>{&zeroOrOneState->nextStates[1], frag.nextStates[0]});
           break;
         }
-        case CharacterType::Literal: {
+        case OperatorType::Literal: {
           stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, ch.getValue(), std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
           auto& output = state->nextStates[0];

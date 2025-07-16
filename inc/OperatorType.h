@@ -2,7 +2,7 @@
 
 namespace regex {
 
-enum class CharacterType
+enum class OperatorType
   {
     Literal           // 'a', 'b', 'c', etc.: matches the literal character
   , Wildcard          // '.': matches any single character
@@ -15,33 +15,33 @@ enum class CharacterType
   , GroupingEnd       // ')': ends a group
   };
 
-  inline bool isOperation(const CharacterType type) {
-    return type == CharacterType::Alternation || type == CharacterType::Concatenation || type == CharacterType::OneOrMore
-        || type == CharacterType::ZeroOrMore || type == CharacterType::ZeroOrOne;
+  inline bool isOperation(const OperatorType type) {
+    return type == OperatorType::Alternation || type == OperatorType::Concatenation || type == OperatorType::OneOrMore
+        || type == OperatorType::ZeroOrMore || type == OperatorType::ZeroOrOne;
   }
 
-  inline bool isRepition(const CharacterType type) {
-    return type == CharacterType::OneOrMore || type == CharacterType::ZeroOrMore || type == CharacterType::ZeroOrOne;
+  inline bool isRepition(const OperatorType type) {
+    return type == OperatorType::OneOrMore || type == OperatorType::ZeroOrMore || type == OperatorType::ZeroOrOne;
   }
 
-  inline bool isAlternation(const CharacterType type) {
-    return type == CharacterType::Alternation;
+  inline bool isAlternation(const OperatorType type) {
+    return type == OperatorType::Alternation;
   }
 
-  inline bool isConcatenation(const CharacterType type) {
-    return type == CharacterType::Concatenation;
+  inline bool isConcatenation(const OperatorType type) {
+    return type == OperatorType::Concatenation;
   }
 
-  inline bool isMatching(const CharacterType type) {
-    return type == CharacterType::Literal || type == CharacterType::Wildcard;
+  inline bool isMatching(const OperatorType type) {
+    return type == OperatorType::Literal || type == OperatorType::Wildcard;
   }
 
-  inline bool isGroupingStart(const CharacterType type) {
-    return type == CharacterType::GroupingStart;
+  inline bool isGroupingStart(const OperatorType type) {
+    return type == OperatorType::GroupingStart;
   }
 
-  inline bool isGroupingEnd(const CharacterType type) {
-    return type == CharacterType::GroupingEnd;
+  inline bool isGroupingEnd(const OperatorType type) {
+    return type == OperatorType::GroupingEnd;
   }
 
 }

@@ -6,10 +6,10 @@
 
 namespace regex {
 
-   using VectorChar = std::vector<Character>;
-    using VectorExpr = std::vector<VectorChar>;
+   using OpVector = std::vector<Operator>;
+    using OpDoubleVector = std::vector<OpVector>;
 
-  Expression::Expression(VectorChar&& characters)
+  Expression::Expression(OpVector&& characters)
     : characters(std::move(characters)) {
  }
 

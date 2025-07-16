@@ -6,38 +6,38 @@
 
 namespace regex {
 
-   VectorChar addConcatenationOperators(const VectorChar& input) {
-      VectorChar output;
+   OpVector addConcatenationOperators(const OpVector& input) {
+      OpVector output;
       for (auto it = input.begin(); it != input.end(); ++it) {
-        if (it->getType() == CharacterType::Concatenation)
+        if (it->getType() == OperatorType::Concatenation)
           throw std::runtime_error("Unexpected concatenation operator in input");
 
         output.push_back(*it);
 
         if (
-          it->getType() != CharacterType::Alternation
-       && it->getType() != CharacterType::GroupingStart
+          it->getType() != OperatorType::Alternation
+       && it->getType() != OperatorType::GroupingStart
        && std::next(it) != input.end()
-       && std::next(it)->getType() != CharacterType::GroupingEnd
+       && std::next(it)->getType() != OperatorType::GroupingEnd
        && !isOperation(std::next(it)->getType())) {
-          output.emplace_back(CharacterType::Concatenation);
+          output.emplace_back(OperatorType::Concatenation);
         }
       }
       return output;
     }
 
-     VectorExpr convertToVectorExpression(const VectorChar& arg) {
-      VectorExpr result;
+     OpDoubleVector convertToVectorExpression(const OpVector& arg) {
+      OpDoubleVector result;
       for (const auto& el : arg)
         result.emplace_back(1, el);
       return result;
     }
 
-    std::stack<std::pair<VectorExpr::iterator, VectorExpr::iterator>> findOuterGroupings(VectorExpr::iterator begin, VectorExpr::iterator end) {
-      VectorChar groupingStart{ 1, Character{CharacterType::GroupingStart} };
-      VectorChar groupingEnd{ 1, Character{CharacterType::GroupingEnd} };
-      std::stack<VectorExpr::iterator> groupingStartStack;
-      std::stack<std::pair<VectorExpr::iterator, VectorExpr::iterator>> groupingStack;
+    std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+      OpVector groupingStart{ 1, Operator{OperatorType::GroupingStart} };
+      OpVector groupingEnd{ 1, Operator{OperatorType::GroupingEnd} };
+      std::stack<OpDoubleVector::iterator> groupingStartStack;
+      std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> groupingStack;
       for (auto it = begin; it != end; ++it) {
         if (*it == groupingStart) {
           groupingStartStack.push(it);
@@ -56,7 +56,7 @@ namespace regex {
       return groupingStack;
     }
 
-    void mergeGroupings(VectorExpr::iterator begin, VectorExpr::iterator end) {
+    void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
       auto groupingStack = findOuterGroupings(begin, end);
       while (!groupingStack.empty()) {
         auto [groupBegin, groupEnd] = groupingStack.top();
@@ -68,7 +68,7 @@ namespace regex {
      }
    }
 
-    VectorExpr::iterator getPreviousCharacter(VectorExpr::iterator it, VectorExpr::iterator begin) {
+    OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin) {
       do {
         if (it == begin)
           throw std::runtime_error("Expression/grouping starts with an operator");
@@ -77,7 +77,7 @@ namespace regex {
       return it;
     }
 
-    VectorExpr::iterator getNextCharacter(VectorExpr::iterator it, VectorExpr::iterator end) {
+    OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end) {
       do {
         if (it + 1 == end)
           throw std::runtime_error("Expression/grouping ends with an operator");
@@ -87,7 +87,7 @@ namespace regex {
     }
 
 
-    void mergeOperatorsWithTwoArguments(const VectorExpr::iterator begin, const VectorExpr::iterator end, bool (*typeCheck)(const CharacterType)) {
+    void mergeOperatorsWithTwoArguments(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
       for (auto it = begin; it != end;) { // iterator incrementation is done in the body
         if (it->size() == 1 && typeCheck(it->at(0).getType())) {
           auto op = it;
@@ -104,15 +104,15 @@ namespace regex {
       }
     }
 
-    void mergeAlternations(VectorExpr::iterator begin, VectorExpr::iterator end) {
+    void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
       mergeOperatorsWithTwoArguments(begin, end, &isAlternation);
     }
 
-    void mergeConcatenations(VectorExpr::iterator begin, VectorExpr::iterator end) {
+    void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
       mergeOperatorsWithTwoArguments(begin, end, &isConcatenation);
     }
 
-    void mergeRepetitions(VectorExpr::iterator begin, VectorExpr::iterator end) {
+    void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
       for (auto it = begin; it != end; ++it) {
         if (it->size() == 1 && isRepition(it->at(0).getType())) {
           auto op = it;
@@ -123,7 +123,7 @@ namespace regex {
       }
     }
 
-    void orderExpression(VectorExpr::iterator begin, VectorExpr::iterator end) {
+    void orderExpression(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
       mergeGroupings(begin, end);
       mergeRepetitions(begin, end);
       mergeConcatenations(begin, end);
@@ -131,13 +131,13 @@ namespace regex {
     }
 
 
-  VectorChar buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
-    const auto replacedCharacters = convertStringToOperatorVector(searchString);
+  OpVector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
+    const auto replacedCharacters = convertStringToOpVector(searchString);
     const auto addedConcatenation = addConcatenationOperators(replacedCharacters);
     auto result = convertToVectorExpression(addedConcatenation);
     orderExpression(result.begin(), result.end());
   
-    VectorChar characters;
+    OpVector characters;
     for (const auto& ch : result)
       characters.insert(characters.end(), ch.begin(), ch.end());
 

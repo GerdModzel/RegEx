@@ -6,19 +6,19 @@
 
 namespace regex {
 
-  VectorChar buildExpressionArgumentsFirstOperatorLast(std::string_view searchString);
+  OpVector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString);
 
 
-  VectorChar addConcatenationOperators(const VectorChar& input);
-  VectorExpr convertToVectorExpression(const VectorChar& arg);
-  std::stack<std::pair<VectorExpr::iterator, VectorExpr::iterator>> findOuterGroupings(VectorExpr::iterator begin, VectorExpr::iterator end);
-  void mergeGroupings(VectorExpr::iterator begin, VectorExpr::iterator end);
-  VectorExpr::iterator getPreviousCharacter(VectorExpr::iterator it, VectorExpr::iterator begin);
-  VectorExpr::iterator getNextCharacter(VectorExpr::iterator it, VectorExpr::iterator end);
-  void mergeOperatorsWithTwoArguments(const VectorExpr::iterator begin, const VectorExpr::iterator end, bool (*typeCheck)(const CharacterType));
-  void mergeAlternations(VectorExpr::iterator begin, VectorExpr::iterator end);
-  void mergeConcatenations(VectorExpr::iterator begin, VectorExpr::iterator end);
-  void mergeRepetitions(VectorExpr::iterator begin, VectorExpr::iterator end);
-  void orderExpression(VectorExpr::iterator begin, VectorExpr::iterator end);
+  OpVector addConcatenationOperators(const OpVector& input);
+  OpDoubleVector convertToVectorExpression(const OpVector& arg);
+  std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin);
+  OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end);
+  void mergeOperatorsWithTwoArguments(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
+  void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void orderExpression(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
 
 }

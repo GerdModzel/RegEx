@@ -10,11 +10,11 @@ namespace regex {
 
  class Expression {
   public:
-    Expression(VectorChar&& characters);
-    std::vector<regex::Character>::const_iterator cbegin() const {
+    Expression(OpVector&& characters);
+    std::vector<regex::Operator>::const_iterator cbegin() const {
       return characters.cbegin();
     }
-     std::vector<regex::Character>::const_iterator cend() const {
+     std::vector<regex::Operator>::const_iterator cend() const {
       return characters.cend();
     }
     size_t size() const {
@@ -23,13 +23,13 @@ namespace regex {
     bool empty() const {
       return characters.empty();
     }
-    const regex::Character& operator[](const size_t index) const {
+    const regex::Operator& operator[](const size_t index) const {
       return characters[index];
     }
     std::string toString() const {
-      return regex::convertOperatorVectorToString(characters);
+      return regex::convertOpVectorToString(characters);
    }
   private:
-    VectorChar characters;
+    OpVector characters;
   };
 }

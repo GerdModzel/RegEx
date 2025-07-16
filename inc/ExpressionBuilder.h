@@ -7,11 +7,11 @@ namespace regex {
   class ExpressionBuilder
   {
   public:
-    ExpressionBuilder(VectorChar(*buildFunction)(std::string_view));
+    ExpressionBuilder(OpVector(*buildFunction)(std::string_view));
     Expression build(std::string_view);
 
   private:
-    VectorChar(*buildFunction)(std::string_view);
+    OpVector(*buildFunction)(std::string_view);
   };
 
 }
