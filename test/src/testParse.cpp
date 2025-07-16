@@ -46,7 +46,7 @@ TEST(ParseTest, characterSearchWithOneOrMore) {
   ASSERT_EQ(results[3].size(), 4);
 }
 
-TEST(ParseTest, characterSearchWithZeroOrOne) {
+TEST(ParseTest, characterSearchWithZeroOrMore) {
   const auto results = regex::parse("asbcdefbbbc", "b*c");
   ASSERT_EQ(results.size(), 6);
   ASSERT_EQ(results[0].position(), 3);
@@ -58,6 +58,20 @@ TEST(ParseTest, characterSearchWithZeroOrOne) {
   ASSERT_EQ(results[3], results[2]);
   ASSERT_EQ(results[4], results[2]);
   ASSERT_EQ(results[5], results[2]);
+}
+
+TEST(ParseTest, characterSearchWithZeroOrOne) {
+  const auto results = regex::parse("asbcdefbbbc", "b?c");
+  ASSERT_EQ(results.size(), 4);
+  ASSERT_EQ(results[0].position(), 3);
+  ASSERT_EQ(results[0].size(), 1);
+  ASSERT_EQ(results[1].position(), 3);
+  ASSERT_EQ(results[1].size(), 1);
+  ASSERT_EQ(results[2].position(), 10);
+  ASSERT_EQ(results[2].size(), 1);
+  ASSERT_EQ(results[3].position(), 10);
+  ASSERT_EQ(results[3].size(), 1);
+
 }
 
 TEST(Benchmark, characterSearch) {
