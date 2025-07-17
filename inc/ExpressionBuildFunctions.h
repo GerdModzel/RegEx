@@ -15,7 +15,7 @@ namespace regex {
   void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
   OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin);
   OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end);
-  void mergeOperatorsWithTwoArguments(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
+  void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
   void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
   void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
   void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);

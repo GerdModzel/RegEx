@@ -88,7 +88,7 @@ namespace regex {
     }
 
 
-    void mergeOperatorsWithTwoArguments(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
+    void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
       for (auto it = begin; it != end;) { // iterator incrementation is done in the body
         if (it->size() == 1 && typeCheck(it->at(0).getType())) {
           auto op = it;
@@ -106,11 +106,11 @@ namespace regex {
     }
 
     void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-      mergeOperatorsWithTwoArguments(begin, end, &isAlternation);
+      mergeBinaryOperators(begin, end, &isAlternation);
     }
 
     void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-      mergeOperatorsWithTwoArguments(begin, end, &isConcatenation);
+      mergeBinaryOperators(begin, end, &isConcatenation);
     }
 
     void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
