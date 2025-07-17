@@ -11,36 +11,58 @@ using namespace regex;
 
 namespace {
 
-  TEST(BuildExpressionArgumentsFirstOperatorLast, Basic0) {
-    std::string_view input = "a|b";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
-    EXPECT_EQ(convertOpVectorToString(result), "ab|");
-  }
-
-  TEST(BuildExpressionArgumentsFirstOperatorLast, Basic1) {
-    std::string_view input = "a+b*";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
-    // Check that the last operator is concatenation if implemented as such
-    EXPECT_EQ(convertOpVectorToString(result), "a+b*&");
-  }
-
-  TEST(BuildExpressionArgumentsFirstOperatorLast, Basic2) {
-    std::string_view input = "a|b|c";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
-    EXPECT_EQ(convertOpVectorToString(result), "ab|c|");
-  }
-
   TEST(BuildExpressionArgumentsFirstOperatorLast, Empty) {
     std::string_view input = "";
     OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_TRUE(result.empty());
   }
 
-  TEST(BuildExpressionArgumentsFirstOperatorLast, Concatenation) {
+
+  TEST(BuildExpressionArgumentsFirstOperatorLast, BasicAlternation) {
+    std::string_view input = "a|b";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    EXPECT_EQ(convertOpVectorToString(result), "ab|");
+  }
+
+  TEST(BuildExpressionArgumentsFirstOperatorLast, BasicConcatenation) {
+    std::string_view input = "ab";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    EXPECT_EQ(convertOpVectorToString(result), "ab&");
+  }
+
+ TEST(BuildExpressionArgumentsFirstOperatorLast, BasicRepetition) {
+    std::string_view input = "a+";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    EXPECT_EQ(convertOpVectorToString(result), "a+");
+  }
+
+
+ TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleAlternations) {
+    std::string_view input = "a|b|c";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    EXPECT_EQ(convertOpVectorToString(result), "ab|c|");
+  }
+
+ TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleConcatenations) {
+    std::string_view input = "abc";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    EXPECT_EQ(convertOpVectorToString(result), "ab&c&");
+  }
+
+ TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleRepetitions) {
+    std::string_view input = "a+b*";
+    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    // Check that the last operator is concatenation if implemented as such
+    EXPECT_EQ(convertOpVectorToString(result), "a+b*&");
+  }
+
+
+ TEST(BuildExpressionArgumentsFirstOperatorLast, ComplexConcatenation) {
     std::string_view input = "ab(ci|d+)e*f?g.h";
     OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab&ci&d+|&e*&f?&g&.&h&");
   }
+
 
   TEST(BuildExpressionArgumentsFirstOperatorLast, UnmatchedGroupingStart) {
     std::string_view input = "(()c";
@@ -57,11 +79,12 @@ namespace {
     EXPECT_THROW(buildExpressionArgumentsFirstOperatorLast(input), std::invalid_argument);
   }
 
-  TEST(BuildExpressionArgumentsFirstOperatorLast, Grouping) {
+  TEST(BuildExpressionArgumentsFirstOperatorLast, ComplexGrouping) {
     std::string_view input = "e(d((a|b)c))((fg)*)";
     OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "edab|c&&&fg&*&");
   }
+
 
   TEST(buildExpressionArgumentsFirstOperatorLast, LeadingBinaryOperator) {
     std::string_view input = "x(|a)y";
