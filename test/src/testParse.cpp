@@ -72,6 +72,23 @@ TEST(ParseTest, characterSearchWithZeroOrOne) {
 
 }
 
+TEST(ParseTest, characterSearchWithAlternation) {
+  const auto results = regex::parse("asbcdefbbbc", "b|c");
+  ASSERT_EQ(results.size(), 6);
+  ASSERT_EQ(results[0].position(), 2);
+  ASSERT_EQ(results[0].size(), 1);
+  ASSERT_EQ(results[1].position(), 3);
+  ASSERT_EQ(results[1].size(), 1);
+  ASSERT_EQ(results[2].position(), 7);
+  ASSERT_EQ(results[2].size(), 1);
+  ASSERT_EQ(results[3].position(), 8);
+  ASSERT_EQ(results[3].size(), 1);
+  ASSERT_EQ(results[4].position(), 9);
+  ASSERT_EQ(results[4].size(), 1);
+  ASSERT_EQ(results[5].position(), 10);
+  ASSERT_EQ(results[5].size(), 1);
+}
+
 TEST(Benchmark, characterSearch) {
   const std::string text = loadWikiTestFile();
   const auto results = regex::parse(text, "automata");

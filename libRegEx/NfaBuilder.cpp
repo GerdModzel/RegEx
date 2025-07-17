@@ -30,6 +30,16 @@ namespace regex {
           fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates);
           break;
         }
+        case OperatorType::Alternation: {
+          assert(fragmentStack.size() >= 2);
+          NfaFragment fragSecond = fragmentStack.top();
+          fragmentStack.pop();
+          NfaFragment fragFirst = fragmentStack.top();
+          fragmentStack.pop();
+          stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{fragFirst.startState, fragSecond.startState}, 0));
+          fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{fragFirst.nextStates[0], fragSecond.nextStates[0]});
+          break;
+        }
         case OperatorType::Wildcard: {
           stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, std::vector<NfaState*>{1, nullptr}, 0));
           auto state = stateManager.back().get();
