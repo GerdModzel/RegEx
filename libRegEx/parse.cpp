@@ -11,14 +11,14 @@
 
 namespace regex {
 
-  void addstate(std::vector<NfaState*>& list, NfaState* state, const int counter)
+  void addStateToList(std::vector<NfaState*>& list, NfaState* state, const int counter)
   {
     assert(state != nullptr);
     if (state->lastList == counter)
       return; // already added to the list
     if (state->type == NfaState::Type::split) {
       for (const auto& nextState : state->nextStates)
-        addstate(list, nextState, counter);
+        addStateToList(list, nextState, counter);
       return;
     }
     state->lastList = counter;
@@ -29,7 +29,7 @@ namespace regex {
     for (const auto currentState : currentStateList) {
       if (currentState->type == NfaState::Type::ch && currentState->ch.value_or(ch) == ch) { // matches character and wildcard (wildcard has no value)
         assert(currentState->nextStates.size() == 1);
-        addstate(nextStateList, currentState->nextStates[0], counter);
+        addStateToList(nextStateList, currentState->nextStates[0], counter);
       }
     }
   }
@@ -51,7 +51,7 @@ namespace regex {
     for (const auto ch : text) {
       currentStateList.swap(nextStateList);
       nextStateList.clear();
-      addstate(currentStateList, startState, characterCounter);
+      addStateToList(currentStateList, startState, characterCounter);
       step(currentStateList, nextStateList, ch, characterCounter);
       extractMatches(nextStateList, resultList, characterCounter);
       ++characterCounter;
