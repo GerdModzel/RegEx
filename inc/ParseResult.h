@@ -6,7 +6,10 @@ namespace regex {
 
   class ParseResult {
   public:
-    ParseResult(const int pos, const int length);
+    ParseResult(const size_t pos, const size_t size)
+    : _position(pos)
+    , _size(size) {
+    }
 
     inline size_t position() const {
       return _position;
