@@ -6,13 +6,11 @@
 #include <iostream>
 
 TEST(ParseTest, EmptyExpression) {
-  const auto results = regex::parse("sdfsdf", "");
-  ASSERT_TRUE(results.empty());
+  ASSERT_THROW(regex::parse("sdfsdf", ""), std::invalid_argument);
 }
 
 TEST(ParseTest, EmptyText) {
-  const auto results = regex::parse("", "k");
-  ASSERT_TRUE(results.empty());
+  ASSERT_THROW(regex::parse("", "k"), std::invalid_argument);
 }
 
 TEST(ParseTest, characterSearch) {

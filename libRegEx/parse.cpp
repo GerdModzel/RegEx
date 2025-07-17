@@ -62,7 +62,7 @@ namespace regex {
 
   std::vector<ParseResult> parse(std::string_view text, std::string_view searchString) {
     if (text.empty() || searchString.empty())
-      return {};
+      throw std::invalid_argument("text or search string cannot be empty");
 
     ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
     Expression expr = builder.build(searchString);
