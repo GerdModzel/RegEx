@@ -24,6 +24,10 @@ enum class OperatorType
     return type == OperatorType::OneOrMore || type == OperatorType::ZeroOrMore || type == OperatorType::ZeroOrOne;
   }
 
+  inline bool isBinaryOperation(const OperatorType type) {
+    return type == OperatorType::Alternation || type == OperatorType::Concatenation;
+  }
+
   inline bool isAlternation(const OperatorType type) {
     return type == OperatorType::Alternation;
   }

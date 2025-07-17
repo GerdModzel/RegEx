@@ -83,6 +83,8 @@ namespace regex {
         if (it + 1 == end)
           throw std::invalid_argument("Expression/grouping ends with an operator");
         ++it;
+        if (it->size() == 1 && isBinaryOperation(it->at(0).getType()))
+          throw std::invalid_argument("two consecutive binary operations");
       } while (it->empty());
       return it;
     }
@@ -114,6 +116,8 @@ namespace regex {
     }
 
     void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+      if (begin != end && begin->size() == 1 && isRepition(begin->at(0).getType()))
+        throw std::invalid_argument("Expression/grouping starts with a repetition operator");
       for (auto it = begin; it != end; ++it) {
         if (it->size() == 1 && isRepition(it->at(0).getType())) {
           auto op = it;
