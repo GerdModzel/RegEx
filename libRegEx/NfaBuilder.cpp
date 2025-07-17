@@ -75,7 +75,7 @@ namespace regex {
           break;
         }
         default:
-          throw std::exception("Unsupported character type in NFA construction");
+          throw std::invalid_argument("Unsupported character type in NFA construction");
       }
     }
     stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{}, 0));

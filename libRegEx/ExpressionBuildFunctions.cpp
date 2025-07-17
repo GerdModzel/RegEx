@@ -10,7 +10,7 @@ namespace regex {
       OpVector output;
       for (auto it = input.begin(); it != input.end(); ++it) {
         if (it->getType() == OperatorType::Concatenation)
-          throw std::runtime_error("Unexpected concatenation operator in input");
+          throw std::invalid_argument("Unexpected concatenation operator in input");
 
         output.push_back(*it);
 
@@ -44,7 +44,7 @@ namespace regex {
         }
         else if (*it == groupingEnd) {
           if (groupingStartStack.empty())
-            throw std::runtime_error("Unmatched grouping end");
+            throw std::invalid_argument("Unmatched grouping end");
           auto start = groupingStartStack.top();
           groupingStartStack.pop();
           if (groupingStartStack.empty())
@@ -52,7 +52,7 @@ namespace regex {
         }
       }
       if (!groupingStartStack.empty())
-        throw std::runtime_error("Unmatched grouping start");
+        throw std::invalid_argument("Unmatched grouping start");
       return groupingStack;
     }
 
@@ -63,15 +63,16 @@ namespace regex {
         groupingStack.pop();
         groupBegin->clear();
         groupEnd->clear();
-        if (groupBegin + 1 < groupEnd) // check that the group is not empty
-          orderExpression(groupBegin + 1, groupEnd); // begin iterator points to first element, end iterator to group closing
+        if (groupBegin + 1 >= groupEnd) // group is empty
+          throw std::invalid_argument("empty grouping");
+        orderExpression(groupBegin + 1, groupEnd); // begin iterator points to first element of grouping, end iterator to group closing
      }
    }
 
     OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin) {
       do {
         if (it == begin)
-          throw std::runtime_error("Expression/grouping starts with an operator");
+          throw std::invalid_argument("Expression/grouping starts with an operator");
         --it;
       } while (it->empty());
       return it;
@@ -80,7 +81,7 @@ namespace regex {
     OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end) {
       do {
         if (it + 1 == end)
-          throw std::runtime_error("Expression/grouping ends with an operator");
+          throw std::invalid_argument("Expression/grouping ends with an operator");
         ++it;
       } while (it->empty());
       return it;
