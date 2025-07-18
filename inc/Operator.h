@@ -37,7 +37,7 @@ namespace regex {
 
 
   inline bool operator==(const Operator& lhs, const Operator& rhs) {
-    return lhs.getType() == rhs.getType() && (!lhs.getValue().has_value() && !rhs.getValue().has_value() || lhs.getValue() == rhs.getValue());
+    return lhs.getType() == rhs.getType() && lhs.getValue() == rhs.getValue();
   }
 
   inline std::ostream& operator<<(std::ostream& os, const Operator& character) {
