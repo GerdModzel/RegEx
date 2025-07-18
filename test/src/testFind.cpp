@@ -5,15 +5,15 @@
 
 #include <iostream>
 
-TEST(ParseTest, EmptyExpression) {
+TEST(FindTest, EmptyExpression) {
   ASSERT_THROW(regex::find("sdfsdf", ""), std::invalid_argument);
 }
 
-TEST(ParseTest, EmptyText) {
+TEST(FindTest, EmptyText) {
   ASSERT_THROW(regex::find("", "k"), std::invalid_argument);
 }
 
-TEST(ParseTest, characterSearch) {
+TEST(FindTest, characterSearch) {
   const auto results = regex::find("asbcdefbbcd", "bcd");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 4);
@@ -22,7 +22,7 @@ TEST(ParseTest, characterSearch) {
   ASSERT_EQ(results[1].size(), 1);
 }
 
-TEST(ParseTest, characterSearchWithWildcard) {
+TEST(FindTest, characterSearchWithWildcard) {
   const auto results = regex::find("asbcdefbbbcccd", "b.c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 10);
@@ -31,7 +31,7 @@ TEST(ParseTest, characterSearchWithWildcard) {
   ASSERT_EQ(results[1].size(), 1);
 }
 
-TEST(ParseTest, characterSearchWithOneOrMore) {
+TEST(FindTest, characterSearchWithOneOrMore) {
   const auto results = regex::find("asbcdefbbbc", "b+c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 3);
@@ -40,7 +40,7 @@ TEST(ParseTest, characterSearchWithOneOrMore) {
   ASSERT_EQ(results[1].size(), 1);
 }
 
-TEST(ParseTest, characterSearchWithZeroOrMore) {
+TEST(FindTest, characterSearchWithZeroOrMore) {
   const auto results = regex::find("ascdesbbbc", "sb*c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 2);
@@ -49,7 +49,7 @@ TEST(ParseTest, characterSearchWithZeroOrMore) {
   ASSERT_EQ(results[1].size(), 1);
 }
 
-TEST(ParseTest, characterSearchWithZeroOrOne) {
+TEST(FindTest, characterSearchWithZeroOrOne) {
   const auto results = regex::find("ascdesbcdesbbbc", "sb?c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 2);
@@ -58,7 +58,7 @@ TEST(ParseTest, characterSearchWithZeroOrOne) {
   ASSERT_EQ(results[1].size(), 1);
 }
 
-TEST(ParseTest, characterSearchWithAlternation) {
+TEST(FindTest, characterSearchWithAlternation) {
   const auto results = regex::find("asbcdefbbbc", "b|c");
   ASSERT_EQ(results.size(), 6);
   ASSERT_EQ(results[0].position(), 2);
