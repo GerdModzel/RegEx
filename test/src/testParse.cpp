@@ -1,20 +1,20 @@
 #include <gtest/gtest.h>
 
-#include "parse.h"
+#include "find.h"
 #include "storageUtils.h"
 
 #include <iostream>
 
 TEST(ParseTest, EmptyExpression) {
-  ASSERT_THROW(regex::parse("sdfsdf", ""), std::invalid_argument);
+  ASSERT_THROW(regex::find("sdfsdf", ""), std::invalid_argument);
 }
 
 TEST(ParseTest, EmptyText) {
-  ASSERT_THROW(regex::parse("", "k"), std::invalid_argument);
+  ASSERT_THROW(regex::find("", "k"), std::invalid_argument);
 }
 
 TEST(ParseTest, characterSearch) {
-  const auto results = regex::parse("asbcdefbbcd", "bcd");
+  const auto results = regex::find("asbcdefbbcd", "bcd");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 4);
   ASSERT_EQ(results[0].size(), 1);
@@ -23,7 +23,7 @@ TEST(ParseTest, characterSearch) {
 }
 
 TEST(ParseTest, characterSearchWithWildcard) {
-  const auto results = regex::parse("asbcdefbbbcccd", "b.c");
+  const auto results = regex::find("asbcdefbbbcccd", "b.c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 10);
   ASSERT_EQ(results[0].size(), 1);
@@ -32,7 +32,7 @@ TEST(ParseTest, characterSearchWithWildcard) {
 }
 
 TEST(ParseTest, characterSearchWithOneOrMore) {
-  const auto results = regex::parse("asbcdefbbbc", "b+c");
+  const auto results = regex::find("asbcdefbbbc", "b+c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 3);
   ASSERT_EQ(results[0].size(), 1);
@@ -41,7 +41,7 @@ TEST(ParseTest, characterSearchWithOneOrMore) {
 }
 
 TEST(ParseTest, characterSearchWithZeroOrMore) {
-  const auto results = regex::parse("ascdesbbbc", "sb*c");
+  const auto results = regex::find("ascdesbbbc", "sb*c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 2);
   ASSERT_EQ(results[0].size(), 1);
@@ -50,7 +50,7 @@ TEST(ParseTest, characterSearchWithZeroOrMore) {
 }
 
 TEST(ParseTest, characterSearchWithZeroOrOne) {
-  const auto results = regex::parse("ascdesbcdesbbbc", "sb?c");
+  const auto results = regex::find("ascdesbcdesbbbc", "sb?c");
   ASSERT_EQ(results.size(), 2);
   ASSERT_EQ(results[0].position(), 2);
   ASSERT_EQ(results[0].size(), 1);
@@ -59,7 +59,7 @@ TEST(ParseTest, characterSearchWithZeroOrOne) {
 }
 
 TEST(ParseTest, characterSearchWithAlternation) {
-  const auto results = regex::parse("asbcdefbbbc", "b|c");
+  const auto results = regex::find("asbcdefbbbc", "b|c");
   ASSERT_EQ(results.size(), 6);
   ASSERT_EQ(results[0].position(), 2);
   ASSERT_EQ(results[0].size(), 1);
@@ -77,6 +77,6 @@ TEST(ParseTest, characterSearchWithAlternation) {
 
 TEST(Benchmark, characterSearch) {
   const std::string text = loadWikiTestFile();
-  const auto results = regex::parse(text, "automata");
+  const auto results = regex::find(text, "automata");
   ASSERT_EQ(results.size(), 5);
 }

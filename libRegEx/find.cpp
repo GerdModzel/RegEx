@@ -1,4 +1,4 @@
-﻿#include "parse.h"
+﻿#include "find.h"
 
 #include "NfaState.h"
 #include "NfaBuilder.h"
@@ -59,7 +59,7 @@ namespace regex {
     return resultList;
   }
 
-  std::vector<ParseResult> parse(std::string_view text, std::string_view searchString) {
+  std::vector<ParseResult> find(std::string_view text, std::string_view searchString) {
     if (text.empty() || searchString.empty())
       throw std::invalid_argument("text or search string cannot be empty");
 

@@ -8,5 +8,5 @@
 
 namespace regex {
 
-  std::vector<ParseResult> parse(std::string_view text, std::string_view searchString);
+  std::vector<ParseResult> find(std::string_view text, std::string_view searchString);
 }
