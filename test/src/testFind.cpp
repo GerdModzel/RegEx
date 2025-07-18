@@ -55,7 +55,18 @@ TEST(FindTest, characterSearchWithAlternation) {
   };
   ASSERT_EQ(results, expected);
 }
-
+TEST(FindTest, characterSearchWithGrouping) {
+  const std::string text = "acdefabd";
+  {
+    const auto results = regex::find(text, "a(b|c)d");
+    const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(7, 1) };
+    ASSERT_EQ(results, expected);
+  } {
+    const auto results = regex::find(text, "ab|cd");
+    const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(6, 1) };
+    ASSERT_EQ(results, expected);
+  }
+}
 TEST(Benchmark, characterSearch) {
   const std::string text = loadWikiTestFile();
   const auto results = regex::find(text, "automata");

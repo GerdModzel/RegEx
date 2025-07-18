@@ -16,11 +16,17 @@ namespace regex {
   {
     enum class Type {ch, split, match};
 
+    NfaState(Type type, std::optional<char> ch, std::vector<NfaState*> nextStates)
+      : type(type)
+      , ch(ch)
+      , nextStates(std::move(nextStates))
+      , lastList(-1) {
+    }
     Type type;
     // std::nullopt: type != ch or character is wildcard character and matches any character
     std::optional<char> ch;
     std::vector<NfaState*> nextStates;
-    int lastList = -1;
+    int lastList;
   };
 
   struct NfaFragment {
