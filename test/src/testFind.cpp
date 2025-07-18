@@ -15,64 +15,45 @@ TEST(FindTest, EmptyText) {
 
 TEST(FindTest, characterSearch) {
   const auto results = regex::find("asbcdefbbcd", "bcd");
-  ASSERT_EQ(results.size(), 2);
-  ASSERT_EQ(results[0].position(), 4);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 10);
-  ASSERT_EQ(results[1].size(), 1);
+  const std::vector<regex::ParseResult> expected{ regex::ParseResult(4, 1), regex::ParseResult(10, 1) };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithWildcard) {
   const auto results = regex::find("asbcdefbbbcccd", "b.c");
-  ASSERT_EQ(results.size(), 2);
-  ASSERT_EQ(results[0].position(), 10);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 11);
-  ASSERT_EQ(results[1].size(), 1);
+  const std::vector<regex::ParseResult> expected{ regex::ParseResult(10, 1), regex::ParseResult(11, 1) };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithOneOrMore) {
   const auto results = regex::find("asbcdefbbbc", "b+c");
-  ASSERT_EQ(results.size(), 2);
-  ASSERT_EQ(results[0].position(), 3);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 10);
-  ASSERT_EQ(results[1].size(), 1);
+  const std::vector<regex::ParseResult> expected{ regex::ParseResult(3, 1), regex::ParseResult(10, 1) };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithZeroOrMore) {
   const auto results = regex::find("ascdesbbbc", "sb*c");
-  ASSERT_EQ(results.size(), 2);
-  ASSERT_EQ(results[0].position(), 2);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 9);
-  ASSERT_EQ(results[1].size(), 1);
+  const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(9, 1) };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithZeroOrOne) {
   const auto results = regex::find("ascdesbcdesbbbc", "sb?c");
-  ASSERT_EQ(results.size(), 2);
-  ASSERT_EQ(results[0].position(), 2);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 7);
-  ASSERT_EQ(results[1].size(), 1);
+  const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(7, 1) };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithAlternation) {
   const auto results = regex::find("asbcdefbbbc", "b|c");
-  ASSERT_EQ(results.size(), 6);
-  ASSERT_EQ(results[0].position(), 2);
-  ASSERT_EQ(results[0].size(), 1);
-  ASSERT_EQ(results[1].position(), 3);
-  ASSERT_EQ(results[1].size(), 1);
-  ASSERT_EQ(results[2].position(), 7);
-  ASSERT_EQ(results[2].size(), 1);
-  ASSERT_EQ(results[3].position(), 8);
-  ASSERT_EQ(results[3].size(), 1);
-  ASSERT_EQ(results[4].position(), 9);
-  ASSERT_EQ(results[4].size(), 1);
-  ASSERT_EQ(results[5].position(), 10);
-  ASSERT_EQ(results[5].size(), 1);
+  const std::vector<regex::ParseResult> expected{
+    regex::ParseResult(2, 1),
+    regex::ParseResult(3, 1),
+    regex::ParseResult(7, 1),
+    regex::ParseResult(8, 1),
+    regex::ParseResult(9, 1),
+    regex::ParseResult(10, 1)
+  };
+  ASSERT_EQ(results, expected);
 }
 
 TEST(Benchmark, characterSearch) {

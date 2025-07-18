@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <ostream>
 
 namespace regex {
 
@@ -26,6 +27,11 @@ namespace regex {
 
   inline bool operator==(const ParseResult& lhs, const ParseResult& rhs) {
     return lhs.position() == rhs.position() && lhs.size() == rhs.size();
+  }
+
+  inline std::ostream& operator<<(std::ostream& os, const ParseResult& result) {
+    os << "ParseResult(position: " << result.position() << ", size: " << result.size() << ")";
+    return os;
   }
 
 }
