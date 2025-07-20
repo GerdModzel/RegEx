@@ -1,4 +1,4 @@
-#include "createNfaFragment.h"
+#include "NfaBuilder.h"
 
 #include <cassert>
 

@@ -1,7 +1,7 @@
 ﻿#include "find.h"
 
 #include "NfaState.h"
-#include "createNfaFragment.h"
+#include "NfaBuilder.h"
 #include "ExpressionBuilder.h"
 #include "ExpressionBuildFunctions.h"
 #include "NfaFragmentSearch.h"
