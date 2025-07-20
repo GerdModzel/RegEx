@@ -19,8 +19,7 @@ namespace regex {
     ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
     Expression expr = builder.build(searchString);
 
-    NfaBuilder nfaBuilder(expr);
-    NfaFragment nfa = nfaBuilder.build();
+    NfaFragment nfa = createNfaFragment(expr);
     std::vector<ParseResult> results;
 
     return executeSearch(text, &nfa);

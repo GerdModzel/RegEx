@@ -5,20 +5,15 @@
 
 #include "NfaState.h"
 #include "Expression.h"
-
+#include "NfaFragment.h"
 
 namespace regex {
 
+  NfaFragment createNfaFragment(const regex::Expression& expr);
+
   using FragmentStack = std::stack<NfaFragment>;
 
-class NfaBuilder {
-	public:
-		NfaBuilder(const regex::Expression& expr);
-		NfaFragment build();
-	private:
-		Expression expr;
-		std::vector<std::unique_ptr<NfaState>> stateManager;
-	};
-
 }
+
+
 

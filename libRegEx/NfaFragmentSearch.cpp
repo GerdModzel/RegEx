@@ -1,8 +1,10 @@
 #include "NfaFragmentSearch.h"
 
 #include "NfaState.h"
+#include "NfaFragment.h"
 
 #include <vector>
+#include <cassert>
 
 namespace regex {
 
