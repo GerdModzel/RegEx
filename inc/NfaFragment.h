@@ -22,7 +22,7 @@ namespace regex {
     std::vector<NfaState**> nextStates;
   private:
 		NfaStateOwner stateManager;
-    friend NfaFragment createNfaFragment(const regex::Expression& expr);
+    friend class NfaBuilder;
   };
 
 }

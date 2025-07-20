@@ -9,9 +9,26 @@
 
 namespace regex {
 
-  NfaFragment createNfaFragment(const regex::Expression& expr);
-
   using FragmentStack = std::stack<NfaFragment>;
+
+  class NfaBuilder {
+  public:
+    static NfaFragment createNfaFragment(const regex::Expression& expr);
+    static void addConcatenationFragmentTo(FragmentStack& fragmentStack);
+    static void addAlternationFragmentTo(FragmentStack& fragmentStack);
+    static void addWildcardFragmentTo(FragmentStack& fragmentStack);
+    static void addLiteralFragmentTo(FragmentStack& fragmentStack);
+    static void addZeroOrOneFragmentTo(FragmentStack& fragmentStack);
+    static void addOneOrMoreFragmentTo(FragmentStack& fragmentStack);
+    static void addZeroOrMoreFragmentTo(FragmentStack& fragmentStack);
+    static void addSuccessStateTo(FragmentStack& fragmentStack);
+  };
+
+
+  //static std::map<OperatorType, void(*)(FragmentStack&)> fragmentCreationFunctions = {
+  //  {OperatorType::Concatenation, [](FragmentStack& stack) {
+  //    assert(stack.size() >= 2);
+  //    NfaFragment fragSecond
 
 }
 

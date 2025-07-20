@@ -1,7 +1,7 @@
 ﻿#include "find.h"
 
 #include "NfaState.h"
-#include "NfaBuilder.h"
+#include "createNfaFragment.h"
 #include "ExpressionBuilder.h"
 #include "ExpressionBuildFunctions.h"
 #include "NfaFragmentSearch.h"
@@ -19,7 +19,7 @@ namespace regex {
     ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
     Expression expr = builder.build(searchString);
 
-    NfaFragment nfa = createNfaFragment(expr);
+    NfaFragment nfa = NfaBuilder::createNfaFragment(expr);
     std::vector<ParseResult> results;
 
     return executeSearch(text, &nfa);
