@@ -11,7 +11,15 @@ FetchContent_MakeAvailable(googletest)
 
 
 # Tests need to be added as executables first
-add_executable(testLibRegEx src/testFind.cpp src/storageUtils.cpp src/testExpression.cpp src/testCalculateHitMask.cpp src/testOperator.cpp src/testExpressionBuildFunctions.cpp)
+add_executable(testLibRegEx 
+               src/testFind.cpp
+               src/storageUtils.cpp 
+               src/testExpression.cpp 
+               src/testCalculateHitMask.cpp 
+               src/testOperator.cpp 
+               src/testExpressionBuildFunctions.cpp 
+               src/testParseResult.cpp 
+               src/testNfaBuilder.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(testLibRegEx PRIVATE cxx_std_20)
