@@ -4,7 +4,20 @@ I am going through the algorithms presented on Russ Cox' blog (https://swtch.com
 
 Currently the NFA algorithm is implemented with the most common operations: ().*?+
 
-Building should work with cmake without special configuration. The simplest usage is via the find() function in libRegEx/find.h or by executing the RegExCmd application (Windows only).
+Building should work with cmake without special configuration.
+
+The simplest usage is via the find() function in libRegEx/find.h. Internally, the functions does this:
+```
+    ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
+    Expression expr = builder.build(searchString);
+
+    NfaFragment nfa = NfaBuilder::createNfaFragment(expr);
+    std::vector<ParseResult> results;
+
+    return executeSearch(text, &nfa);
+```
+The `ExpressionBuilder` converts the search string into an `Epression` using the function supplied to the constructor. `NfaBuilder` creates a non-deterministic finite automaton (NFA) that is then traversed by `executeSearch` to find matching strings in the text.
+
 
 folder structure:
 - inc: header files
