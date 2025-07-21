@@ -24,12 +24,6 @@ namespace regex {
     static void addSuccessStateTo(FragmentStack& fragmentStack);
   };
 
-
-  //static std::map<OperatorType, void(*)(FragmentStack&)> fragmentCreationFunctions = {
-  //  {OperatorType::Concatenation, [](FragmentStack& stack) {
-  //    assert(stack.size() >= 2);
-  //    NfaFragment fragSecond
-
 }
 
 
