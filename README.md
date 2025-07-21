@@ -16,7 +16,7 @@ The simplest usage is via the find() function in libRegEx/find.h. Internally, th
 
     return executeSearch(text, &nfa);
 ```
-The `ExpressionBuilder` converts the search string into an `Epression` using the function supplied to the constructor. `NfaBuilder` creates a non-deterministic finite automaton (NFA) that is then traversed by `executeSearch` to find matching strings in the text.
+The `ExpressionBuilder` converts the search string into an `Expression` using the function supplied to the constructor. `NfaBuilder` creates a non-deterministic finite automaton (NFA) that is then traversed by `executeSearch` to find matching strings in the text.
 
 
 folder structure:
