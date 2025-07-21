@@ -33,11 +33,13 @@ namespace regex {
     return result;
   }
 
-  std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+  using GroupingIterators = std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>;
+
+  std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
     OpVector groupingStart{ 1, Operator{OperatorType::GroupingStart} };
     OpVector groupingEnd{ 1, Operator{OperatorType::GroupingEnd} };
     std::stack<OpDoubleVector::iterator> groupingStartStack;
-    std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> groupingStack;
+    std::stack<GroupingIterators> groupingStack;
     for (auto it = begin; it != end; ++it) {
       if (*it == groupingStart) {
         groupingStartStack.push(it);
@@ -56,16 +58,27 @@ namespace regex {
     return groupingStack;
   }
 
+  namespace {
+    GroupingIterators popGroupingFromStack(std::stack<GroupingIterators>& stack) {
+      auto [groupBegin, groupEnd] = stack.top();
+      stack.pop();
+      groupBegin->clear();
+      groupEnd->clear();
+      return { groupBegin, groupEnd };
+    }
+
+    bool isGroupEmpty(GroupingIterators group) {
+      return group.first + 1 >= group.second;
+    }
+  }
+
   /* OpDoubleVector means that
    */
   void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
     auto groupingStack = findOuterGroupings(begin, end);
     while (!groupingStack.empty()) {
-      auto [groupBegin, groupEnd] = groupingStack.top();
-      groupingStack.pop();
-      groupBegin->clear();
-      groupEnd->clear();
-      if (groupBegin + 1 >= groupEnd) // group is empty
+      auto [groupBegin, groupEnd] = popGroupingFromStack(groupingStack);
+      if (isGroupEmpty({ groupBegin, groupEnd }))
         throw std::invalid_argument("empty grouping");
       orderExpression(groupBegin + 1, groupEnd); // begin iterator points to first element of grouping, end iterator to group closing
     }
@@ -91,17 +104,29 @@ namespace regex {
     return it;
   }
 
+  namespace {
+    void mergeElements(std::vector<OpDoubleVector::iterator> elements) {
+      if (elements.size() < 2)
+        throw std::invalid_argument("At least two elements are required to merge");
+
+      std::vector<Operator>& elementToFill = *elements.front();
+
+      for (auto it = elements.begin() + 1; it != elements.end(); ++it) {
+        std::vector<Operator>& elementToEmpty = **it;
+        elementToFill.insert(elementToFill.end(), elementToEmpty.begin(), elementToEmpty.end());
+        elementToEmpty.clear();
+      }
+    }
+  }
 
   void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
     for (auto it = begin; it != end;) { // iterator incrementation is done in the body
-      if (it->size() == 1 && typeCheck(it->at(0).getType())) {
-        auto op = it;
+      std::vector<Operator>& currentElement = *it;
+      if (currentElement.size() == 1 && typeCheck(currentElement[0].getType())) {
+        auto operation = it;
         auto argLeft = getPreviousCharacter(it, begin);
         auto argRight = getNextCharacter(it, end);
-        argLeft->insert(argLeft->end(), argRight->begin(), argRight->end()); // append right argument
-        argLeft->insert(argLeft->end(), op->begin(), op->end()); // append operator at the end
-        op->clear(); // delete operator (now superfluous)
-        argRight->clear(); // delete right argument (now superfluous)
+        mergeElements({ argLeft, argRight, operation }); // merge the operator with its two arguments
         it = argRight + 1;
       }
       else
@@ -127,18 +152,6 @@ namespace regex {
       return begin != end && isElementRepetition(begin);
     }
 
-    void mergeElements(std::vector<OpDoubleVector::iterator> elements) {
-      if (elements.size() < 2)
-        throw std::invalid_argument("At least two elements are required to merge");
-
-      std::vector<Operator>& elementToFill = *elements.front();
-
-      for (auto it = elements.begin() + 1; it != elements.end(); ++it) {
-        std::vector<Operator>& elementToEmpty = **it;
-        elementToFill.insert(elementToFill.end(), elementToEmpty.begin(), elementToEmpty.end());
-        elementToEmpty.clear();
-      }
-    }
   }
 
   void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
