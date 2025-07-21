@@ -30,7 +30,11 @@ void NfaBuilder::addConcatenationFragmentTo(FragmentStack& fragmentStack) {
   auto stateManager = transferOwnership(fragFirst.stateManager, fragSecond.stateManager);
 
   connect(fragFirst.nextStates, fragSecond.startState);
-  fragmentStack.emplace(fragFirst.startState, fragSecond.nextStates, std::move(stateManager));
+
+  NfaState* newFragStartState = fragFirst.startState;
+  std::vector<NfaState**> newFragNextStates{ fragSecond.nextStates };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addAlternationFragmentTo(FragmentStack& fragmentStack) {
@@ -41,64 +45,102 @@ void NfaBuilder::addAlternationFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.pop();
 
   auto stateManager = transferOwnership(fragFirst.stateManager, fragSecond.stateManager);
-  stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{fragFirst.startState, fragSecond.startState}));
 
-  fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{fragFirst.nextStates[0], fragSecond.nextStates[0]}, std::move(stateManager));
+  std::vector<NfaState*> newStateNextStates{ fragFirst.startState, fragSecond.startState };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+
+  NfaState* newFragStartState = newState.get();
+  std::vector<NfaState**> newFragNextStates{ fragFirst.nextStates[0], fragSecond.nextStates[0] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addWildcardFragmentTo(FragmentStack& fragmentStack) {
-  auto wildcardState = std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, std::vector<NfaState*>{1, nullptr});
-  auto& output = wildcardState->nextStates[0];
   NfaStateOwner stateManager;
-  stateManager.emplace_back(std::move(wildcardState));
-  fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&output}, std::move(stateManager));
+
+  std::vector<NfaState*> newStateNextStates{ 1, nullptr };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, newStateNextStates));
+
+  NfaState* newFragStartState = newState.get();
+  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[0] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addLiteralFragmentTo(FragmentStack& fragmentStack) {
   std::vector<std::unique_ptr<NfaState>> stateManager;
-  stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, std::vector<NfaState*>{1, nullptr}));
-  auto literalState = stateManager.back().get();
-  auto& output = literalState->nextStates[0];
-  fragmentStack.emplace(literalState, std::vector<NfaState**>{&output}, std::move(stateManager));
+
+  std::vector<NfaState*> newStateNextStates{ 1, nullptr };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, newStateNextStates));
+
+  NfaState* newFragStartState = newState.get();
+  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[0] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addZeroOrMoreFragmentTo(FragmentStack& fragmentStack) {
   assert(fragmentStack.size() >= 1);
+
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
-  std::vector<std::unique_ptr<NfaState>> stateManager{ std::move(frag.stateManager) };
-  stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{frag.startState, nullptr}));
-  auto zeroOrMoreState = stateManager.back().get();
-  connect(frag.nextStates, zeroOrMoreState);
-  fragmentStack.emplace(stateManager.back().get(), std::vector<NfaState**>{&zeroOrMoreState->nextStates[1]}, std::move(stateManager));
+
+  auto stateManager{ std::move(frag.stateManager) };
+
+  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+
+  connect(frag.nextStates, newState.get());
+
+  NfaState* newFragStartState = newState.get();
+  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addOneOrMoreFragmentTo(FragmentStack& fragmentStack) {
   assert(fragmentStack.size() >= 1);
+
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
-  auto oneOrMoreState = std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{frag.startState, nullptr});
-  auto& outputNextState = oneOrMoreState->nextStates[1];
-  std::vector<std::unique_ptr<NfaState>> stateManager{ std::move(frag.stateManager) };
-  stateManager.emplace_back(std::move(oneOrMoreState));
-  connect(frag.nextStates, stateManager.back().get());
-  fragmentStack.emplace(frag.startState, std::vector<NfaState**>{&outputNextState}, std::move(stateManager));
+
+  auto stateManager{ std::move(frag.stateManager) };
+  
+  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+
+  connect(frag.nextStates, newState.get());
+
+  NfaState* newFragStartState = frag.startState;
+  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addZeroOrOneFragmentTo(FragmentStack& fragmentStack) {
   assert(fragmentStack.size() >= 1);
+
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
-  std::vector<std::unique_ptr<NfaState>> stateManager{ std::move(frag.stateManager) };
-  stateManager.push_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, std::vector<NfaState*>{frag.startState, nullptr}));
-  auto zeroOrOneState = stateManager.back().get();
-  fragmentStack.emplace(zeroOrOneState, std::vector<NfaState**>{&zeroOrOneState->nextStates[1], frag.nextStates[0]}, std::move(stateManager));
+
+  auto stateManager{ std::move(frag.stateManager) };
+
+  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+
+  NfaState* newFragStartState = newState.get();
+  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1], frag.nextStates[0] };
+  NfaFragment newFragment{ newFragStartState, newFragNextStates, std::move(stateManager) };
+  fragmentStack.push(std::move(newFragment));
 }
 
 void NfaBuilder::addSuccessStateTo(FragmentStack& fragmentStack) {
-  auto matchState = std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, std::vector<NfaState*>{});
-  connect(fragmentStack.top().nextStates, matchState.get());
-  fragmentStack.top().stateManager.emplace_back(std::move(matchState));
+  auto& stateManager = fragmentStack.top().stateManager;
+
+  std::vector<NfaState*> newStateNextStates{};
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, newStateNextStates));
+
+  connect(fragmentStack.top().nextStates, newState.get());
 }
 
 NfaFragment NfaBuilder::createNfaFragment(const regex::Expression& expr) {
