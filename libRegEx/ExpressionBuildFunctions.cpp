@@ -10,16 +10,16 @@ namespace regex {
     OpVector output;
     for (auto it = input.begin(); it != input.end(); ++it) {
       if (it->getType() == OperatorType::Concatenation)
-        throw std::invalid_argument("Unexpected concatenation operator in input");
+        throw std::invalid_argument("there should be no explicit concatenation operator in the input");
 
       output.push_back(*it);
 
       if (
-        it->getType() != OperatorType::Alternation
-        && it->getType() != OperatorType::GroupingStart
-        && std::next(it) != input.end()
-        && std::next(it)->getType() != OperatorType::GroupingEnd
-        && !isOperation(std::next(it)->getType())) {
+           it->getType() != OperatorType::Alternation               // do not add concatenation after an alternation (e.g. "a|b")
+        && it->getType() != OperatorType::GroupingStart             // do not add concatenation after grouping start (e.g. "(a|b)" )
+        && std::next(it) != input.end()                             // do not add concatenation at the end of the input
+        && std::next(it)->getType() != OperatorType::GroupingEnd    // do not add concatenation before grouping end (e.g. "(a|b)")
+        && !isOperation(std::next(it)->getType())) {                // do not add concatenation before an operator (e.g. "a+")
         output.emplace_back(OperatorType::Concatenation);
       }
     }
@@ -35,11 +35,16 @@ namespace regex {
 
   using GroupingIterators = std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>;
 
+  /* The groupingStartStack is used to keep track of the opening parentheses. When a closing parenthesis is found,
+  *  the opening parenthesis is removed from the stack. We only care for the outermost groupings, so only if that
+  *  empties the stack do we add the position of both parentheses to the groupingStack.
+  */
   std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    OpVector groupingStart{ 1, Operator{OperatorType::GroupingStart} };
-    OpVector groupingEnd{ 1, Operator{OperatorType::GroupingEnd} };
+    const OpVector groupingStart{ 1, Operator{OperatorType::GroupingStart} };
+    const OpVector groupingEnd{ 1, Operator{OperatorType::GroupingEnd} };
     std::stack<OpDoubleVector::iterator> groupingStartStack;
     std::stack<GroupingIterators> groupingStack;
+
     for (auto it = begin; it != end; ++it) {
       if (*it == groupingStart) {
         groupingStartStack.push(it);
@@ -72,7 +77,7 @@ namespace regex {
     }
   }
 
-  /* OpDoubleVector means that
+  /*  Each grouping is ordered separately, which ensures that each grouping will be processed independently during the later search.
    */
   void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
     auto groupingStack = findOuterGroupings(begin, end);
@@ -143,7 +148,6 @@ namespace regex {
   }
 
   namespace {
-
     bool isElementRepetition(OpDoubleVector::iterator it) {
       return it->size() == 1 && isRepition(it->at(0).getType());
     }
