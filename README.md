@@ -8,13 +8,13 @@ Building should work with cmake without special configuration.
 
 The simplest usage is via the find() function in libRegEx/find.h. Internally, the functions does this:
 ```
+namespace regex {
     ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
-    Expression expr = builder.build(searchString);
+    constExpression expr = builder.build(searchString);
 
     NfaFragment nfa = NfaBuilder::createNfaFragment(expr);
-    std::vector<ParseResult> results;
-
-    return executeSearch(text, &nfa);
+    const std::vector<ParseResult> results = executeSearch(text, &nfa);
+}
 ```
 The `ExpressionBuilder` converts the search string into an `Expression` using the function supplied to the constructor. `NfaBuilder` creates a non-deterministic finite automaton (NFA) that is then traversed by `executeSearch` to find matching strings in the text.
 
