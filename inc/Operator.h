@@ -10,7 +10,7 @@
 namespace regex {
 
   class Operator;
-  using OpVector = std::vector<Operator>;
+  using OpVector = std::vector<std::unique_ptr<Operator>>;
   using OpDoubleVector = std::vector<OpVector>;
 
 
@@ -30,7 +30,7 @@ namespace regex {
     std::optional<char> const getValue() const {
       return value;
     }
-  private:
+  protected:
     OperatorType type;
     std::optional<char> value;
   };
@@ -67,22 +67,24 @@ namespace regex {
    inline std::string convertOpVectorToString(const OpVector& operators) {
      std::string result;
      for (const auto& op : operators) {
-       result += convertOperatorToChar(op);
+       result += convertOperatorToChar(*op);
      }
      return result;
    }
 
-   inline Operator convertCharToOperator(char ch) {
+
+   inline std::unique_ptr<Operator> convertCharToOperator(char ch) {
+     std::unique_ptr<Operator> result{ nullptr };
      switch (ch) {
-     case '.': return Operator{ OperatorType::Wildcard };
-     case '+': return Operator{ OperatorType::OneOrMore };
-     case '*': return Operator{ OperatorType::ZeroOrMore };
-     case '?': return Operator{ OperatorType::ZeroOrOne };
-             // there is no explicit representation of concatenation in the expression
-     case '|': return Operator{ OperatorType::Alternation };
-     case '(': return Operator{ OperatorType::GroupingStart };
-     case ')': return Operator{ OperatorType::GroupingEnd };
-     default: return Operator{ ch }; // Default to literal for any other character
+     case '.': return std::make_unique<Operator>(OperatorType::Wildcard);
+     case '+': return std::make_unique<Operator>(OperatorType::OneOrMore);
+     case '*': return std::make_unique<Operator>(OperatorType::ZeroOrMore);
+     case '?': return std::make_unique<Operator>(OperatorType::ZeroOrOne);
+       // there is no explicit representation of concatenation in the expression
+     case '|': return std::make_unique<Operator>(OperatorType::Alternation);
+     case '(': return std::make_unique<Operator>(OperatorType::GroupingStart);
+     case ')': return std::make_unique<Operator>(OperatorType::GroupingEnd);
+     default: return std::make_unique<Operator>(ch); // Default to literal for any other character
      }
    }
 
@@ -91,6 +93,14 @@ namespace regex {
      for (const auto& ch : searchString)
        result.push_back(convertCharToOperator(ch));
      return result;
+   }
+
+   inline OpVector createOpVector(std::vector<Operator> input) {
+      OpVector result;
+      for (auto& op : input) {
+        result.push_back(std::make_unique<Operator>(std::move(op)));
+      }
+      return result;
    }
 
 

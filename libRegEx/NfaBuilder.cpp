@@ -147,7 +147,7 @@ NfaFragment NfaBuilder::createNfaFragment(const regex::Expression& expr) {
   FragmentStack fragmentStack;
 
   for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
-    const regex::Operator ch = *cit;
+    const regex::Operator ch = **cit;
     switch (ch.getType()) {
     case OperatorType::Concatenation: {
       addConcatenationFragmentTo(fragmentStack);

@@ -9,18 +9,18 @@ namespace regex {
   OpVector addConcatenationOperators(const OpVector& input) {
     OpVector output;
     for (auto it = input.begin(); it != input.end(); ++it) {
-      if (it->getType() == OperatorType::Concatenation)
+      if ((**it).getType() == OperatorType::Concatenation)
         throw std::invalid_argument("there should be no explicit concatenation operator in the input");
 
-      output.push_back(*it);
+      output.push_back(std::make_unique<Operator>(**it));
 
       if (
-           it->getType() != OperatorType::Alternation               // do not add concatenation after an alternation (e.g. "a|b")
-        && it->getType() != OperatorType::GroupingStart             // do not add concatenation after grouping start (e.g. "(a|b)" )
+           (**it).getType() != OperatorType::Alternation               // do not add concatenation after an alternation (e.g. "a|b")
+        && (**it).getType() != OperatorType::GroupingStart             // do not add concatenation after grouping start (e.g. "(a|b)" )
         && std::next(it) != input.end()                             // do not add concatenation at the end of the input
-        && std::next(it)->getType() != OperatorType::GroupingEnd    // do not add concatenation before grouping end (e.g. "(a|b)")
-        && !isOperation(std::next(it)->getType())) {                // do not add concatenation before an operator (e.g. "a+")
-        output.emplace_back(OperatorType::Concatenation);
+        && (**std::next(it)).getType() != OperatorType::GroupingEnd    // do not add concatenation before grouping end (e.g. "(a|b)")
+        && !isOperation((**std::next(it)).getType())) {                // do not add concatenation before an operator (e.g. "a+")
+        output.push_back(std::make_unique<Operator>(OperatorType::Concatenation));
       }
     }
     return output;
@@ -28,8 +28,10 @@ namespace regex {
 
   OpDoubleVector convertToVectorExpression(const OpVector& arg) {
     OpDoubleVector result;
-    for (const auto& el : arg)
-      result.emplace_back(1, el);
+    for (const auto& el : arg) {
+      result.push_back({});
+      result.back().push_back(std::make_unique<Operator>(*el));
+    }
     return result;
   }
 
@@ -40,16 +42,16 @@ namespace regex {
   *  empties the stack do we add the position of both parentheses to the groupingStack.
   */
   std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    const OpVector groupingStart{ 1, Operator{OperatorType::GroupingStart} };
-    const OpVector groupingEnd{ 1, Operator{OperatorType::GroupingEnd} };
+    Operator groupingStart{ OperatorType::GroupingStart };
+    Operator groupingEnd{ OperatorType::GroupingEnd };
     std::stack<OpDoubleVector::iterator> groupingStartStack;
     std::stack<GroupingIterators> groupingStack;
 
     for (auto it = begin; it != end; ++it) {
-      if (*it == groupingStart) {
+      if (it->size() == 1 && *it->at(0) == groupingStart) {
         groupingStartStack.push(it);
       }
-      else if (*it == groupingEnd) {
+      else if (it->size() == 1 && *it->at(0) == groupingEnd) {
         if (groupingStartStack.empty())
           throw std::invalid_argument("Unmatched grouping end");
         auto start = groupingStartStack.top();
@@ -103,7 +105,7 @@ namespace regex {
       if (it + 1 == end)
         throw std::invalid_argument("Expression/grouping ends with an operator");
       ++it;
-      if (it->size() == 1 && isBinaryOperation(it->at(0).getType()))
+      if (it->size() == 1 && isBinaryOperation(it->at(0)->getType()))
         throw std::invalid_argument("two consecutive binary operations");
     } while (it->empty());
     return it;
@@ -114,11 +116,11 @@ namespace regex {
       if (elements.size() < 2)
         throw std::invalid_argument("At least two elements are required to merge");
 
-      std::vector<Operator>& elementToFill = *elements.front();
+      OpVector& elementToFill = *elements.front();
 
       for (auto it = elements.begin() + 1; it != elements.end(); ++it) {
-        std::vector<Operator>& elementToEmpty = **it;
-        elementToFill.insert(elementToFill.end(), elementToEmpty.begin(), elementToEmpty.end());
+        OpVector& elementToEmpty = **it;
+        elementToFill.insert(elementToFill.end(), std::make_move_iterator(elementToEmpty.begin()), std::make_move_iterator(elementToEmpty.end()));
         elementToEmpty.clear();
       }
     }
@@ -126,8 +128,8 @@ namespace regex {
 
   void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
     for (auto it = begin; it != end;) { // iterator incrementation is done in the body
-      std::vector<Operator>& currentElement = *it;
-      if (currentElement.size() == 1 && typeCheck(currentElement[0].getType())) {
+      OpVector& currentElement = *it;
+      if (currentElement.size() == 1 && typeCheck(currentElement[0]->getType())) {
         auto operation = it;
         auto argLeft = getPreviousCharacter(it, begin);
         auto argRight = getNextCharacter(it, end);
@@ -149,7 +151,7 @@ namespace regex {
 
   namespace {
     bool isElementRepetition(OpDoubleVector::iterator it) {
-      return it->size() == 1 && isRepition(it->at(0).getType());
+      return it->size() == 1 && isRepition(it->at(0)->getType());
     }
 
     bool isFirstElementRepetition(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
@@ -190,8 +192,8 @@ namespace regex {
     orderExpression(result.begin(), result.end());
 
     OpVector characters;
-    for (const auto& ch : result)
-      characters.insert(characters.end(), ch.begin(), ch.end());
+    for (auto& ch : result)
+      characters.insert(characters.end(), std::make_move_iterator(ch.begin()), std::make_move_iterator(ch.end()));
 
     return characters;
   }

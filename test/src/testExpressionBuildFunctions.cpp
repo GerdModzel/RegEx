@@ -121,7 +121,7 @@ namespace {
 
 
   TEST(addConcatenationOperators, ConcatenationInInput) {
-    OpVector input = { Operator{'a'}, Operator{OperatorType::Concatenation}, Operator{'b'} };
+    const OpVector input = createOpVector({ Operator{'a'}, Operator{OperatorType::Concatenation}, Operator{'b'} });
     EXPECT_THROW(addConcatenationOperators(input), std::invalid_argument);
   }
 
