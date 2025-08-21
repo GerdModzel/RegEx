@@ -15,7 +15,7 @@ namespace regex {
 
 
   class Operator {
-  public:
+  protected:
     explicit Operator(char i_value)
     : type(OperatorType::Literal)
     , value(i_value)
@@ -24,6 +24,7 @@ namespace regex {
     : type(i_type)
     , value(std::nullopt)
     {}
+  public:
     OperatorType const getType() const {
       return type;
     }
@@ -33,6 +34,69 @@ namespace regex {
   protected:
     OperatorType type;
     std::optional<char> value;
+  };
+
+  class Wildcard : public Operator {
+  public:
+    Wildcard()
+      : Operator(OperatorType::Wildcard) {
+    }
+  };
+
+  class Alternation : public Operator {
+  public:
+    Alternation()
+      : Operator(OperatorType::Alternation) {
+    }
+  };
+
+  class GroupingStart : public Operator {
+  public:
+    GroupingStart()
+      : Operator(OperatorType::GroupingStart) {
+    }
+  };
+
+  class GroupingEnd : public Operator {
+  public:
+    GroupingEnd()
+      : Operator(OperatorType::GroupingEnd) {
+    }
+  };
+
+  class ZeroOrMore : public Operator {
+  public:
+    ZeroOrMore()
+      : Operator(OperatorType::ZeroOrMore) {
+    }
+  };
+
+  class OneOrMore : public Operator {
+  public:
+    OneOrMore()
+      : Operator(OperatorType::OneOrMore) {
+    }
+  };
+
+  class ZeroOrOne : public Operator {
+  public:
+    ZeroOrOne()
+      : Operator(OperatorType::ZeroOrOne) {
+    }
+  };
+
+  class Concatenation : public Operator {
+  public:
+    Concatenation()
+      : Operator(OperatorType::Concatenation) {
+    }
+  };
+
+  class Literal : public Operator {
+  public:
+    explicit Literal(char i_value)
+      : Operator(i_value) {
+    }
   };
 
 
@@ -76,15 +140,15 @@ namespace regex {
    inline std::unique_ptr<Operator> convertCharToOperator(char ch) {
      std::unique_ptr<Operator> result{ nullptr };
      switch (ch) {
-     case '.': return std::make_unique<Operator>(OperatorType::Wildcard);
-     case '+': return std::make_unique<Operator>(OperatorType::OneOrMore);
-     case '*': return std::make_unique<Operator>(OperatorType::ZeroOrMore);
-     case '?': return std::make_unique<Operator>(OperatorType::ZeroOrOne);
+     case '.': return std::make_unique<Wildcard>();
+     case '+': return std::make_unique<OneOrMore>();
+     case '*': return std::make_unique<ZeroOrMore>();
+     case '?': return std::make_unique<ZeroOrOne>();
        // there is no explicit representation of concatenation in the expression
-     case '|': return std::make_unique<Operator>(OperatorType::Alternation);
-     case '(': return std::make_unique<Operator>(OperatorType::GroupingStart);
-     case ')': return std::make_unique<Operator>(OperatorType::GroupingEnd);
-     default: return std::make_unique<Operator>(ch); // Default to literal for any other character
+     case '|': return std::make_unique<Alternation>();
+     case '(': return std::make_unique<GroupingStart>();
+     case ')': return std::make_unique<GroupingEnd>();
+     default: return std::make_unique<Literal>(ch); // Default to literal for any other character
      }
    }
 

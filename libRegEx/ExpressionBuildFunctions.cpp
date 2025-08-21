@@ -20,17 +20,17 @@ namespace regex {
         && std::next(it) != input.end()                             // do not add concatenation at the end of the input
         && (**std::next(it)).getType() != OperatorType::GroupingEnd    // do not add concatenation before grouping end (e.g. "(a|b)")
         && !isOperation((**std::next(it)).getType())) {                // do not add concatenation before an operator (e.g. "a+")
-        output.push_back(std::make_unique<Operator>(OperatorType::Concatenation));
+        output.push_back(std::make_unique<Concatenation>());
       }
     }
     return output;
   }
 
-  OpDoubleVector convertToVectorExpression(const OpVector& arg) {
+  OpDoubleVector convertToVectorExpression(OpVector& arg) {
     OpDoubleVector result;
-    for (const auto& el : arg) {
+    for (auto& el : arg) {
       result.push_back({});
-      result.back().push_back(std::make_unique<Operator>(*el));
+      result.back().push_back(std::move(el));
     }
     return result;
   }
@@ -42,8 +42,8 @@ namespace regex {
   *  empties the stack do we add the position of both parentheses to the groupingStack.
   */
   std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    Operator groupingStart{ OperatorType::GroupingStart };
-    Operator groupingEnd{ OperatorType::GroupingEnd };
+    Operator groupingStart{ GroupingStart{} };
+    Operator groupingEnd{ GroupingEnd{} };
     std::stack<OpDoubleVector::iterator> groupingStartStack;
     std::stack<GroupingIterators> groupingStack;
 
@@ -187,7 +187,7 @@ namespace regex {
 
   OpVector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
     const auto replacedCharacters = convertStringToOpVector(searchString);
-    const auto addedConcatenation = addConcatenationOperators(replacedCharacters);
+    auto addedConcatenation = addConcatenationOperators(replacedCharacters);
     auto result = convertToVectorExpression(addedConcatenation);
     orderExpression(result.begin(), result.end());
 

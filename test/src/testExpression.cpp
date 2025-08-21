@@ -5,7 +5,7 @@
 using namespace regex;
 
 TEST(ExpressionTest, AllInOne) {
-  const OpVector ops = createOpVector( {Operator('c'), Operator(OperatorType::Alternation) });
+  const OpVector ops = createOpVector({ Literal{'c'}, Alternation{} });
   Expression expr{ ops };
   EXPECT_EQ(expr.size(), 2);
   EXPECT_EQ(expr.empty(), false);
