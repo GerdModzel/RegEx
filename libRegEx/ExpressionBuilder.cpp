@@ -2,12 +2,12 @@
 
 namespace regex {
 
-  ExpressionBuilder::ExpressionBuilder(OpVector(*buildFunction)(std::string_view))
+  ExpressionBuilder::ExpressionBuilder(op::Vector(*buildFunction)(std::string_view))
   : buildFunction(buildFunction) {
   }
 
   Expression ExpressionBuilder::build(std::string_view searchString) {
-    OpVector characters = buildFunction(searchString);
+    op::Vector characters = buildFunction(searchString);
     return Expression(std::move(characters));
   }
 }

@@ -5,15 +5,15 @@
 using namespace regex;
 
 TEST(ExpressionTest, AllInOne) {
-  regex::OpVector ops;
-  ops.push_back(std::make_unique<regex::Literal>('c'));
-  ops.push_back(std::make_unique<regex::Alternation>());
+  regex::op::Vector ops;
+  ops.push_back(std::make_unique<regex::op::Literal>('c'));
+  ops.push_back(std::make_unique<regex::op::Alternation>());
   Expression expr{ ops };
 
   EXPECT_EQ(expr.size(), 2);
   EXPECT_EQ(expr.empty(), false);
 
-  OpVector::const_iterator inputIt = ops.cbegin();
+  op::Vector::const_iterator inputIt = ops.cbegin();
   for (auto outputIt = expr.cbegin(); outputIt != expr.cend(); ++outputIt) {
     EXPECT_EQ(**inputIt, **outputIt);
     ++inputIt;

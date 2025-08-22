@@ -10,11 +10,11 @@ namespace regex {
   class ExpressionBuilder
   {
   public:
-    ExpressionBuilder(OpVector(*buildFunction)(std::string_view));
+    ExpressionBuilder(op::Vector(*buildFunction)(std::string_view));
     Expression build(std::string_view);
 
   private:
-    OpVector(*buildFunction)(std::string_view);
+    op::Vector(*buildFunction)(std::string_view);
   };
 
 }

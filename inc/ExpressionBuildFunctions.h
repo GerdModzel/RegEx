@@ -6,7 +6,7 @@
 
 namespace regex {
 
-  /** \brief Converts a string to an OpVector and orders it, preparing it for further processing.
+  /** \brief Converts a string to an op::Vector and orders it, preparing it for further processing.
   *
   * First, the characters are replaced by a vector of Operators. Then, the implicit concatenation operators
   * are added between characters. Then, the vector is ordered "arguments first, Operator last". That means
@@ -15,43 +15,43 @@ namespace regex {
   * Operators. This is the format expected by the NFA builder.
   *
   * @param searchString The string to convert.
-  * @returns An OpVector containing the ordered Operators representing the characters in the string.
+  * @returns An op::Vector containing the ordered Operators representing the characters in the string.
   */
-  OpVector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString);
+  op::Vector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString);
 
 
-  /// brief Adds explicit concatenation Operators to an OpVector.
-  OpVector addConcatenationOperators(const OpVector& input);
+  /// brief Adds explicit concatenation Operators to an op::Vector.
+  op::Vector addConcatenationOperators(const op::Vector& input);
 
   ///  converts a vector of Operators to a vector of vector of Operators. This is needed to handle grouping and operator precedence.
-  OpDoubleVector convertToVectorExpression(OpVector& arg);
+  op::DoubleVector convertToVectorExpression(op::Vector& arg);
 
-  /// Finds all outer groupings in an OpDoubleVector and returns a stack of pairs of iterators representing the start and end of each grouping.
+  /// Finds all outer groupings in an op::DoubleVector and returns a stack of pairs of iterators representing the start and end of each grouping.
   /// E.g. "(()) returns the two outer parentheses.
-  std::stack<std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  std::stack<std::pair<op::DoubleVector::iterator, op::DoubleVector::iterator>> findOuterGroupings(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
-  /// Removes all groupings from the OpDoubleVector, merging the contents of each grouping into the surrounding context.
-  void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  /// Removes all groupings from the op::DoubleVector, merging the contents of each grouping into the surrounding context.
+  void mergeGroupings(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
-  /// Returns the previous character in the OpDoubleVector, skipping empty vectors.
-  OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin);
+  /// Returns the previous character in the op::DoubleVector, skipping empty vectors.
+  op::DoubleVector::iterator getPreviousCharacter(op::DoubleVector::iterator it, op::DoubleVector::iterator begin);
 
-  /// Returns the next character in the OpDoubleVector, skipping empty vectors.
-  OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end);
+  /// Returns the next character in the op::DoubleVector, skipping empty vectors.
+  op::DoubleVector::iterator getNextCharacter(op::DoubleVector::iterator it, op::DoubleVector::iterator end);
 
   /// Merges binary operators with the preceding two arguments.
-  void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
+  void mergeBinaryOperators(const op::DoubleVector::iterator begin, const op::DoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
 
   /// Merges alternation operators with the preceding two arguments.
-  void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeAlternations(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
   /// Merges concatenation operators with the preceding two arguments.
-  void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeConcatenations(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
   /// Merges repetition operators with the preceding argument.
-  void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  void mergeRepetitions(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
-  /// Orders the OpDoubleVector by merging groupings, repetitions, concatenations, and alternations.
-  void orderExpression(OpDoubleVector::iterator begin, OpDoubleVector::iterator end);
+  /// Orders the op::DoubleVector by merging groupings, repetitions, concatenations, and alternations.
+  void orderExpression(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
 
 }

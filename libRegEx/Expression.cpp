@@ -6,11 +6,11 @@
 
 namespace regex {
 
-  Expression::Expression(OpVector&& characters)
+  Expression::Expression(op::Vector&& characters)
     : characters{ std::move(characters) } {
   }
 
-  Expression::Expression(const OpVector& i_characters)
+  Expression::Expression(const op::Vector& i_characters)
     : characters{} {
     for (const auto& ch : i_characters)
       characters.push_back(ch->clone());

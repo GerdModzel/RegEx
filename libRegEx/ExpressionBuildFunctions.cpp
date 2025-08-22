@@ -6,10 +6,10 @@
 
 namespace regex {
 
-  OpVector addConcatenationOperators(const OpVector& input) {
-    OpVector output;
+  op::Vector addConcatenationOperators(const op::Vector& input) {
+    op::Vector output;
     for (auto it = input.begin(); it != input.end(); ++it) {
-      Operator& op = **it;
+      op::Operator& op = **it;
 
       if (op.getType() == OperatorType::Concatenation)
         throw std::invalid_argument("there should be no explicit concatenation operator in the input");
@@ -17,20 +17,20 @@ namespace regex {
       output.push_back(op.clone());
 
       const bool addConcatenation =
-        op != Alternation{} &&                  // do not add concatenation after an alternation (e.g. "a|b")
-        op != GroupingStart{} &&                // do not add concatenation after grouping start (e.g. "(a|b)" )
+        op != op::Alternation{} &&                  // do not add concatenation after an alternation (e.g. "a|b")
+        op != op::GroupingStart{} &&                // do not add concatenation after grouping start (e.g. "(a|b)" )
         std::next(it) != input.end() &&         // do not add concatenation at the end of the input 
-        **std::next(it) != GroupingEnd{} &&     // do not add concatenation before grouping end (e.g. "(a|b)")
+        **std::next(it) != op::GroupingEnd{} &&     // do not add concatenation before grouping end (e.g. "(a|b)")
         !(**std::next(it)).isOperation();       // do not add concatenation before an operator (e.g. "a+")
 
       if (addConcatenation)
-        output.push_back(std::make_unique<Concatenation>());
+        output.push_back(std::make_unique<op::Concatenation>());
     }
     return output;
   }
 
-  OpDoubleVector convertToVectorExpression(OpVector& arg) {
-    OpDoubleVector result;
+  op::DoubleVector convertToVectorExpression(op::Vector& arg) {
+    op::DoubleVector result;
     for (auto& el : arg) {
       result.push_back({});
       result.back().push_back(std::move(el));
@@ -38,16 +38,16 @@ namespace regex {
     return result;
   }
 
-  using GroupingIterators = std::pair<OpDoubleVector::iterator, OpDoubleVector::iterator>;
+  using GroupingIterators = std::pair<op::DoubleVector::iterator, op::DoubleVector::iterator>;
 
   /* The groupingStartStack is used to keep track of the opening parentheses. When a closing parenthesis is found,
   *  the opening parenthesis is removed from the stack. We only care for the outermost groupings, so only if that
   *  empties the stack do we add the position of both parentheses to the groupingStack.
   */
-  std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    GroupingStart groupingStart;
-    GroupingEnd groupingEnd;
-    std::stack<OpDoubleVector::iterator> groupingStartStack;
+  std::stack<GroupingIterators> findOuterGroupings(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
+    op::GroupingStart groupingStart;
+    op::GroupingEnd groupingEnd;
+    std::stack<op::DoubleVector::iterator> groupingStartStack;
     std::stack<GroupingIterators> groupingStack;
 
     for (auto it = begin; it != end; ++it) {
@@ -84,7 +84,7 @@ namespace regex {
 
   /*  Each grouping is ordered separately, which ensures that each grouping will be processed independently during the later search.
    */
-  void mergeGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+  void mergeGroupings(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
     auto groupingStack = findOuterGroupings(begin, end);
     while (!groupingStack.empty()) {
       auto [groupBegin, groupEnd] = popGroupingFromStack(groupingStack);
@@ -94,7 +94,7 @@ namespace regex {
     }
   }
 
-  OpDoubleVector::iterator getPreviousCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator begin) {
+  op::DoubleVector::iterator getPreviousCharacter(op::DoubleVector::iterator it, op::DoubleVector::iterator begin) {
     do {
       if (it == begin)
         throw std::invalid_argument("Expression/grouping starts with an operator");
@@ -103,7 +103,7 @@ namespace regex {
     return it;
   }
 
-  OpDoubleVector::iterator getNextCharacter(OpDoubleVector::iterator it, OpDoubleVector::iterator end) {
+  op::DoubleVector::iterator getNextCharacter(op::DoubleVector::iterator it, op::DoubleVector::iterator end) {
     do {
       if (it + 1 == end)
         throw std::invalid_argument("Expression/grouping ends with an operator");
@@ -115,14 +115,14 @@ namespace regex {
   }
 
   namespace {
-    void mergeElements(std::vector<OpDoubleVector::iterator> elements) {
+    void mergeElements(std::vector<op::DoubleVector::iterator> elements) {
       if (elements.size() < 2)
         throw std::invalid_argument("At least two elements are required to merge");
 
-      OpVector& elementToFill = *elements.front();
+      op::Vector& elementToFill = *elements.front();
 
       for (auto it = elements.begin() + 1; it != elements.end(); ++it) {
-        OpVector& elementToEmpty = **it;
+        op::Vector& elementToEmpty = **it;
         elementToFill.insert(elementToFill.end(), std::make_move_iterator(elementToEmpty.begin()), std::make_move_iterator(elementToEmpty.end()));
         elementToEmpty.clear();
       }
@@ -130,9 +130,9 @@ namespace regex {
   }
 
   template <class T>
-  void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end) {
+  void mergeBinaryOperators(const op::DoubleVector::iterator begin, const op::DoubleVector::iterator end) {
     for (auto it = begin; it != end;) { // iterator incrementation is done in the body
-      OpVector& currentElement = *it;
+      op::Vector& currentElement = *it;
       if (currentElement.size() == 1 && dynamic_cast<T*>(currentElement.at(0).get())) {
         auto operation = it;
         auto argLeft = getPreviousCharacter(it, begin);
@@ -145,26 +145,26 @@ namespace regex {
     }
   }
 
-  void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    mergeBinaryOperators<Alternation>(begin, end);
+  void mergeAlternations(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
+    mergeBinaryOperators<op::Alternation>(begin, end);
   }
 
-  void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    mergeBinaryOperators<Concatenation>(begin, end);
+  void mergeConcatenations(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
+    mergeBinaryOperators<op::Concatenation>(begin, end);
   }
 
   namespace {
-    bool isElementRepetition(OpDoubleVector::iterator it) {
+    bool isElementRepetition(op::DoubleVector::iterator it) {
       return it->size() == 1 && it->at(0)->isRepetition();
     }
 
-    bool isFirstElementRepetition(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+    bool isFirstElementRepetition(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
       return begin != end && isElementRepetition(begin);
     }
 
   }
 
-  void mergeRepetitions(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+  void mergeRepetitions(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
     if (isFirstElementRepetition(begin, end))
       throw std::invalid_argument("Expression/grouping starts with a repetition operator");
 
@@ -177,25 +177,25 @@ namespace regex {
     }
   }
 
-  /* At the start of the function, the OpDoubleVector input contains one element in each of its vectors.
+  /* At the start of the function, the op::DoubleVector input contains one element in each of its vectors.
   * As the inner functions are called, elements are merged so that some vectors contain no element, while others contain multiple.
   * Each such multiple-element-vector contains a complete operation with an operator and all its arguments, e.g. "ab|" or "a+".
   * These are merged with others until all vectors except one are empty.
   */
-  void orderExpression(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
+  void orderExpression(op::DoubleVector::iterator begin, op::DoubleVector::iterator end) {
     mergeGroupings(begin, end);
     mergeRepetitions(begin, end);
     mergeConcatenations(begin, end);
     mergeAlternations(begin, end);
   }
 
-  OpVector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
-    const auto replacedCharacters = convertStringToOpVector(searchString);
+  op::Vector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
+    const auto replacedCharacters = op::convertStringToOpVector(searchString);
     auto addedConcatenation = addConcatenationOperators(replacedCharacters);
     auto result = convertToVectorExpression(addedConcatenation);
     orderExpression(result.begin(), result.end());
 
-    OpVector characters;
+    op::Vector characters;
     for (auto& ch : result)
       characters.insert(characters.end(), std::make_move_iterator(ch.begin()), std::make_move_iterator(ch.end()));
 

@@ -13,45 +13,45 @@ namespace {
 
   TEST(BuildExpressionArgumentsFirstOperatorLast, Empty) {
     std::string_view input = "";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_TRUE(result.empty());
   }
 
 
   TEST(BuildExpressionArgumentsFirstOperatorLast, BasicAlternation) {
     std::string_view input = "a|b";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab|");
   }
 
   TEST(BuildExpressionArgumentsFirstOperatorLast, BasicConcatenation) {
     std::string_view input = "ab";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab&");
   }
 
  TEST(BuildExpressionArgumentsFirstOperatorLast, BasicRepetition) {
     std::string_view input = "a+";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "a+");
   }
 
 
  TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleAlternations) {
     std::string_view input = "a|b|c";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab|c|");
   }
 
  TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleConcatenations) {
     std::string_view input = "abc";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab&c&");
   }
 
  TEST(BuildExpressionArgumentsFirstOperatorLast, MultipleRepetitions) {
     std::string_view input = "a+b*";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     // Check that the last operator is concatenation if implemented as such
     EXPECT_EQ(convertOpVectorToString(result), "a+b*&");
   }
@@ -59,7 +59,7 @@ namespace {
 
  TEST(BuildExpressionArgumentsFirstOperatorLast, ComplexConcatenation) {
     std::string_view input = "ab(ci|d+)e*f?g.h";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "ab&ci&d+|&e*&f?&g&.&h&");
   }
 
@@ -81,7 +81,7 @@ namespace {
 
   TEST(BuildExpressionArgumentsFirstOperatorLast, ComplexGrouping) {
     std::string_view input = "e(d((a|b)c))((fg)*)";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "edab|c&&&fg&*&");
   }
 
@@ -98,7 +98,7 @@ namespace {
 
   TEST(buildExpressionArgumentsFirstOperatorLast, NotTrailingBinaryOperator) {
     std::string_view input = "x(a|(bc))y";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "xabc&|&y&");
   }
 
@@ -109,7 +109,7 @@ namespace {
 
   TEST(buildExpressionArgumentsFirstOperatorLast, TrailingUnaryOperator) {
     std::string_view input = "x(ab*)y";
-    OpVector result = buildExpressionArgumentsFirstOperatorLast(input);
+    op::Vector result = buildExpressionArgumentsFirstOperatorLast(input);
     EXPECT_EQ(convertOpVectorToString(result), "xab*&&y&");
   }
 
@@ -121,10 +121,10 @@ namespace {
 
 
   TEST(addConcatenationOperators, ConcatenationInInput) {
-    OpVector input;
-    input.push_back(std::make_unique<Literal>('a'));
-    input.push_back(std::make_unique<Concatenation>());
-    input.push_back(std::make_unique<Literal>('b'));
+    op::Vector input;
+    input.push_back(std::make_unique<op::Literal>('a'));
+    input.push_back(std::make_unique<op::Concatenation>());
+    input.push_back(std::make_unique<op::Literal>('b'));
     EXPECT_THROW(addConcatenationOperators(input), std::invalid_argument);
   }
 
