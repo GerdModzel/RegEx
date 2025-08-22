@@ -20,7 +20,7 @@ namespace {
 
 }
 
-void NfaBuilder::addConcatenationFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::Concatenation const* const op) {
   assert(fragmentStack.size() >= 2);
   NfaFragment fragSecond = std::move(fragmentStack.top());
   fragmentStack.pop();
@@ -37,7 +37,7 @@ void NfaBuilder::addConcatenationFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addAlternationFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::Alternation const* const op) {
   assert(fragmentStack.size() >= 2);
   NfaFragment fragSecond = std::move(fragmentStack.top());
   fragmentStack.pop();
@@ -55,7 +55,7 @@ void NfaBuilder::addAlternationFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addWildcardFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::Wildcard const* const op) {
   NfaStateOwner stateManager;
 
   std::vector<NfaState*> newStateNextStates{ 1, nullptr };
@@ -67,11 +67,11 @@ void NfaBuilder::addWildcardFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addLiteralFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::Literal const* const op) {
   std::vector<std::unique_ptr<NfaState>> stateManager;
 
   std::vector<NfaState*> newStateNextStates{ 1, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, newStateNextStates));
+  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, op->getValue(), newStateNextStates));
 
   NfaState* newFragStartState = newState.get();
   std::vector<NfaState**> newFragNextStates{ &newState->nextStates[0] };
@@ -79,7 +79,7 @@ void NfaBuilder::addLiteralFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addZeroOrMoreFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::ZeroOrMore const* const op) {
   assert(fragmentStack.size() >= 1);
 
   NfaFragment frag = std::move(fragmentStack.top());
@@ -98,14 +98,14 @@ void NfaBuilder::addZeroOrMoreFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addOneOrMoreFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::OneOrMore const* const op) {
   assert(fragmentStack.size() >= 1);
 
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
 
   auto stateManager{ std::move(frag.stateManager) };
-  
+
   std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
   auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
 
@@ -117,7 +117,7 @@ void NfaBuilder::addOneOrMoreFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addZeroOrOneFragmentTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::ZeroOrOne const* const op) {
   assert(fragmentStack.size() >= 1);
 
   NfaFragment frag = std::move(fragmentStack.top());
@@ -134,7 +134,7 @@ void NfaBuilder::addZeroOrOneFragmentTo(FragmentStack& fragmentStack) {
   fragmentStack.push(std::move(newFragment));
 }
 
-void NfaBuilder::addSuccessStateTo(FragmentStack& fragmentStack) {
+void NfaBuilder::visit(op::Match const* const op) {
   auto& stateManager = fragmentStack.top().stateManager;
 
   std::vector<NfaState*> newStateNextStates{};
@@ -144,45 +144,12 @@ void NfaBuilder::addSuccessStateTo(FragmentStack& fragmentStack) {
 }
 
 NfaFragment NfaBuilder::createNfaFragment(const regex::Expression& expr) {
-  FragmentStack fragmentStack;
-
   for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
-    const regex::op::Operator& ch = **cit;
-    switch (ch.getType()) {
-    case OperatorType::Concatenation: {
-      addConcatenationFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::Alternation: {
-      addAlternationFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::Wildcard: {
-      addWildcardFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::ZeroOrMore: {
-      addZeroOrMoreFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::OneOrMore: {
-      addOneOrMoreFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::ZeroOrOne: {
-      addZeroOrOneFragmentTo(fragmentStack);
-      break;
-    }
-    case OperatorType::Literal: {
-      addLiteralFragmentTo(fragmentStack);
-      fragmentStack.top().stateManager.back()->ch = dynamic_cast<const op::Literal&>(ch).getValue();
-      break;
-    }
-    default:
-      throw std::invalid_argument("Unsupported character type in NFA construction");
-    }
+    regex::op::Operator* ch = cit->get();
+    ch->accept(this);
   }
-  addSuccessStateTo(fragmentStack);
+  op::Match matchOperator;
+  matchOperator.accept(this);
 
   assert(fragmentStack.size() == 1);
   return std::move(fragmentStack.top());

@@ -1,235 +1,282 @@
 #pragma once
 
 #include "OperatorType.h"
+#include "OperatorVisitor.h"
 
 #include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
 
-namespace regex {
-  namespace op {
+namespace regex::op {
 
-    class Operator;
-    using Vector = std::vector<std::unique_ptr<Operator>>;
-    using DoubleVector = std::vector<Vector>;
+  class Operator;
+  using Vector = std::vector<std::unique_ptr<Operator>>;
+  using DoubleVector = std::vector<Vector>;
 
 
-    class Operator {
-    protected:
-      explicit Operator(OperatorType i_type)
-        : type(i_type)
-      {
-      }
+  class Operator {
+  protected:
+    explicit Operator(OperatorType i_type)
+      : type(i_type)
+    {
+    }
 
-    public:
-      virtual ~Operator() = default;
-      virtual std::unique_ptr<Operator> clone() const = 0;
+  public:
+    virtual ~Operator() = default;
+    virtual std::unique_ptr<Operator> clone() const = 0;
 
-      virtual char toChar() const = 0;
-      virtual bool isRepetition() const = 0;
-      virtual bool isOperation() const = 0;
-      virtual bool isBinaryOperation() const = 0;
+    virtual char toChar() const = 0;
+    virtual bool isRepetition() const = 0;
+    virtual bool isOperation() const = 0;
+    virtual bool isBinaryOperation() const = 0;
 
-      OperatorType const getType() const {
-        return type;
-      }
-    protected:
-      OperatorType type;
-    };
+    virtual void accept(op::OperatorVisitor* visitor) = 0;
 
-    class Wildcard : public Operator {
-    public:
-      Wildcard()
-        : Operator(OperatorType::Wildcard) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<Wildcard>(*this);
-      }
+    OperatorType const getType() const {
+      return type;
+    }
+  protected:
+    OperatorType type;
+  };
 
-      char toChar() const override { return '.'; }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return false; }
-      bool isBinaryOperation() const { return false; }
-    };
+  class Wildcard : public Operator {
+  public:
+    Wildcard()
+      : Operator(OperatorType::Wildcard) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<Wildcard>(*this);
+    }
 
-    class Concatenation : public Operator {
-    public:
-      Concatenation()
-        : Operator(OperatorType::Concatenation) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<Concatenation>(*this);
-      }
+    char toChar() const override { return '.'; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return false; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
 
-      char toChar() const override { return '&'; }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return true; }
-      bool isBinaryOperation() const { return true; }
-    };
+  class Concatenation : public Operator {
+  public:
+    Concatenation()
+      : Operator(OperatorType::Concatenation) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<Concatenation>(*this);
+    }
 
-    class Alternation : public Operator {
-    public:
-      Alternation()
-        : Operator(OperatorType::Alternation) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<Alternation>(*this);
-      }
+    char toChar() const override { return '&'; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return true; }
+    bool isBinaryOperation() const { return true; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
 
-      char toChar() const override { return '|'; }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return true; }
-      bool isBinaryOperation() const { return true; }
-    };
+  class Alternation : public Operator {
+  public:
+    Alternation()
+      : Operator(OperatorType::Alternation) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<Alternation>(*this);
+    }
 
-    class Literal : public Operator {
-    public:
-      explicit Literal(char value)
-        : Operator(OperatorType::Literal)
-        , value(value) {
-      }
-      ~Literal() override = default;
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<Literal>(*this);
-      }
+    char toChar() const override { return '|'; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return true; }
+    bool isBinaryOperation() const { return true; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
 
-      char const getValue() const {
-        return value;
-      }
-      char toChar() const override {
-        return getValue();
-      }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return false; }
-      bool isBinaryOperation() const { return false; }
-    private:
+  class Literal : public Operator {
+  public:
+    explicit Literal(char value)
+      : Operator(OperatorType::Literal)
+      , value(value) {
+    }
+    ~Literal() override = default;
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<Literal>(*this);
+    }
+
+    char const getValue() const {
+      return value;
+    }
+    char toChar() const override {
+      return getValue();
+    }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return false; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    } private:
       char value;
-    };
+  };
 
-    class ZeroOrOne : public Operator {
-    public:
-      ZeroOrOne()
-        : Operator(OperatorType::ZeroOrOne) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<ZeroOrOne>(*this);
-      }
-
-      char toChar() const override { return '?'; }
-      bool isRepetition() const override { return true; }
-      bool isOperation() const { return true; }
-      bool isBinaryOperation() const { return false; }
-    };
-
-    class OneOrMore : public Operator {
-    public:
-      OneOrMore()
-        : Operator(OperatorType::OneOrMore) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<OneOrMore>(*this);
-      }
-
-      char toChar() const override { return '+'; }
-      bool isRepetition() const override { return true; }
-      bool isOperation() const { return true; }
-      bool isBinaryOperation() const { return false; }
-    };
-
-    class ZeroOrMore : public Operator {
-    public:
-      ZeroOrMore()
-        : Operator(OperatorType::ZeroOrMore) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<ZeroOrMore>(*this);
-      }
-
-      char toChar() const override { return '*'; }
-      bool isRepetition() const override { return true; }
-      bool isOperation() const { return true; }
-      bool isBinaryOperation() const { return false; }
-    };
-
-    class GroupingStart : public Operator {
-    public:
-      GroupingStart()
-        : Operator(OperatorType::GroupingStart) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<GroupingStart>(*this);
-      }
-
-      char toChar() const override { return '('; }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return false; }
-      bool isBinaryOperation() const { return false; }
-    };
-
-    class GroupingEnd : public Operator {
-    public:
-      GroupingEnd()
-        : Operator(OperatorType::GroupingEnd) {
-      }
-      std::unique_ptr<Operator> clone() const override {
-        return std::make_unique<GroupingEnd>(*this);
-      }
-
-      char toChar() const override { return ')'; }
-      bool isRepetition() const override { return false; }
-      bool isOperation() const { return false; }
-      bool isBinaryOperation() const { return false; }
-    };
-
-    inline bool operator==(const Operator& lhs, const Operator& rhs) {
-      auto plhs = dynamic_cast<const Literal*>(&lhs);
-      auto prhs = dynamic_cast<const Literal*>(&rhs);
-      if (plhs && prhs)
-        return plhs->getValue() == prhs->getValue();
-      return typeid(lhs) == typeid(rhs);
+  class ZeroOrOne : public Operator {
+  public:
+    ZeroOrOne()
+      : Operator(OperatorType::ZeroOrOne) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<ZeroOrOne>(*this);
     }
 
-    inline bool operator!=(const Operator& lhs, const Operator& rhs) {
-      return !(lhs == rhs);
+    char toChar() const override { return '?'; }
+    bool isRepetition() const override { return true; }
+    bool isOperation() const { return true; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
+
+  class OneOrMore : public Operator {
+  public:
+    OneOrMore()
+      : Operator(OperatorType::OneOrMore) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<OneOrMore>(*this);
     }
 
-    inline std::ostream& operator<<(std::ostream& os, const Operator& character) {
-      os << character.toChar();
-      return os;
+    char toChar() const override { return '+'; }
+    bool isRepetition() const override { return true; }
+    bool isOperation() const { return true; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
+
+  class ZeroOrMore : public Operator {
+  public:
+    ZeroOrMore()
+      : Operator(OperatorType::ZeroOrMore) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<ZeroOrMore>(*this);
     }
 
+    char toChar() const override { return '*'; }
+    bool isRepetition() const override { return true; }
+    bool isOperation() const { return true; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
 
-    inline std::string convertOpVectorToString(const op::Vector& operators) {
-      std::string result;
-      for (const auto& op : operators) {
-        result += op->toChar();
-      }
-      return result;
+  class GroupingStart : public Operator {
+  public:
+    GroupingStart()
+      : Operator(OperatorType::GroupingStart) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<GroupingStart>(*this);
     }
 
+    char toChar() const override { return '('; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return false; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
 
-    inline std::unique_ptr<Operator> convertCharToOperator(char ch) {
-      std::unique_ptr<Operator> result{ nullptr };
-      switch (ch) {
-      case '.': return std::make_unique<Wildcard>();
-      case '+': return std::make_unique<OneOrMore>();
-      case '*': return std::make_unique<ZeroOrMore>();
-      case '?': return std::make_unique<ZeroOrOne>();
-        // there is no explicit representation of concatenation in the expression
-      case '|': return std::make_unique<Alternation>();
-      case '(': return std::make_unique<GroupingStart>();
-      case ')': return std::make_unique<GroupingEnd>();
-      default: return std::make_unique<Literal>(ch); // Default to literal for any other character
-      }
+  class GroupingEnd : public Operator {
+  public:
+    GroupingEnd()
+      : Operator(OperatorType::GroupingEnd) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<GroupingEnd>(*this);
     }
 
-    inline op::Vector convertStringToOpVector(std::string_view searchString) {
-      op::Vector result;
-      for (const auto& ch : searchString)
-        result.push_back(convertCharToOperator(ch));
-      return result;
+    char toChar() const override { return ')'; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return false; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
+
+  class Match : public Operator {
+  public:
+    Match()
+      : Operator(OperatorType::Match) {
+    }
+    std::unique_ptr<Operator> clone() const override {
+      return std::make_unique<Match>(*this);
     }
 
+    char toChar() const override { return '#'; }
+    bool isRepetition() const override { return false; }
+    bool isOperation() const { return false; }
+    bool isBinaryOperation() const { return false; }
+    virtual void accept(op::OperatorVisitor* visitor) override {
+      visitor->visit(this);
+    }
+  };
+
+
+
+  inline bool operator==(const Operator& lhs, const Operator& rhs) {
+    auto plhs = dynamic_cast<const Literal*>(&lhs);
+    auto prhs = dynamic_cast<const Literal*>(&rhs);
+    if (plhs && prhs)
+      return plhs->getValue() == prhs->getValue();
+    return typeid(lhs) == typeid(rhs);
   }
+
+  inline bool operator!=(const Operator& lhs, const Operator& rhs) {
+    return !(lhs == rhs);
+  }
+
+  inline std::ostream& operator<<(std::ostream& os, const Operator& character) {
+    os << character.toChar();
+    return os;
+  }
+
+
+  inline std::string convertOpVectorToString(const op::Vector& operators) {
+    std::string result;
+    for (const auto& op : operators) {
+      result += op->toChar();
+    }
+    return result;
+  }
+
+
+  inline std::unique_ptr<Operator> convertCharToOperator(char ch) {
+    std::unique_ptr<Operator> result{ nullptr };
+    switch (ch) {
+    case '.': return std::make_unique<Wildcard>();
+    case '+': return std::make_unique<OneOrMore>();
+    case '*': return std::make_unique<ZeroOrMore>();
+    case '?': return std::make_unique<ZeroOrOne>();
+      // there is no explicit representation of concatenation in the expression
+    case '|': return std::make_unique<Alternation>();
+    case '(': return std::make_unique<GroupingStart>();
+    case ')': return std::make_unique<GroupingEnd>();
+    default: return std::make_unique<Literal>(ch); // Default to literal for any other character
+    }
+  }
+
+  inline op::Vector convertStringToOpVector(std::string_view searchString) {
+    op::Vector result;
+    for (const auto& ch : searchString)
+      result.push_back(convertCharToOperator(ch));
+    return result;
+  }
+
 }

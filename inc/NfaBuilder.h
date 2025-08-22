@@ -1,18 +1,21 @@
 #pragma once
 
-#include <string_view>
-#include <stack>
-
 #include "NfaState.h"
 #include "Expression.h"
 #include "NfaFragment.h"
+#include "op/OperatorVisitor.h"
+
+#include <string_view>
+#include <stack>
 
 namespace regex {
 
   using FragmentStack = std::stack<NfaFragment>;
 
-  class NfaBuilder {
+  class NfaBuilder : public op::OperatorVisitor {
   public:
+    NfaBuilder() = default;
+
     /** 
      * \brief Creates an NFA (Non-deterministic Finite Automaton) fragment from a regular expression.
      * 
@@ -23,24 +26,28 @@ namespace regex {
      * \param expr The regular expression to convert into an NFA fragment.
      * \return An NfaFragment representing the NFA for the given expression.
     */
-    static NfaFragment createNfaFragment(const regex::Expression& expr);
+    NfaFragment createNfaFragment(const regex::Expression& expr);
 
     /// creates a new NFA fragment for the concatenation operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addConcatenationFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::Concatenation const* const op) override;
     /// creates a new NFA fragment for the alternation operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addAlternationFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::Alternation const* const op) override;
     /// creates a new NFA fragment for the wildcard operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addWildcardFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::Wildcard const* const op) override;
     /// creates a new NFA fragment for the literal operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addLiteralFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::Literal const* const op) override;
     /// creates a new NFA fragment for the zero-or-one operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addZeroOrOneFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::ZeroOrOne const* const op) override;
     /// creates a new NFA fragment for the one-or-more operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addOneOrMoreFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::OneOrMore const* const op) override;
     /// creates a new NFA fragment for the zero-or-more operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addZeroOrMoreFragmentTo(FragmentStack& fragmentStack);
+    void visit(op::ZeroOrMore const* const op) override;
     /// creates a new NFA fragment that represents a successful match; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-    static void addSuccessStateTo(FragmentStack& fragmentStack);
+//      void visit(GroupingStart const * const op) override;
+ //     void visit(GroupingEnd const * const op) override;
+    void visit(op::Match const* const op) override;
+  private:
+    FragmentStack fragmentStack;
   };
 
 }

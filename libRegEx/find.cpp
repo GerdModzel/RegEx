@@ -16,10 +16,11 @@ namespace regex {
     if (text.empty() || searchString.empty())
       throw std::invalid_argument("text or search string cannot be empty");
 
-    ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
-    Expression expr = builder.build(searchString);
+    ExpressionBuilder exprBuilder(&buildExpressionArgumentsFirstOperatorLast);
+    Expression expr = exprBuilder.build(searchString);
 
-    NfaFragment nfa = NfaBuilder::createNfaFragment(expr);
+    NfaBuilder nfaBuilder;
+    NfaFragment nfa = nfaBuilder.createNfaFragment(expr);
     std::vector<ParseResult> results;
 
     return executeSearch(text, &nfa);
