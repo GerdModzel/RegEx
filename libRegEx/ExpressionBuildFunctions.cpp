@@ -9,19 +9,22 @@ namespace regex {
   OpVector addConcatenationOperators(const OpVector& input) {
     OpVector output;
     for (auto it = input.begin(); it != input.end(); ++it) {
-      if ((**it).getType() == OperatorType::Concatenation)
+      Operator& op = **it;
+
+      if (op.getType() == OperatorType::Concatenation)
         throw std::invalid_argument("there should be no explicit concatenation operator in the input");
 
-      output.push_back(std::make_unique<Operator>(**it));
+      output.push_back(op.clone());
 
-      if (
-           (**it).getType() != OperatorType::Alternation               // do not add concatenation after an alternation (e.g. "a|b")
-        && (**it).getType() != OperatorType::GroupingStart             // do not add concatenation after grouping start (e.g. "(a|b)" )
-        && std::next(it) != input.end()                             // do not add concatenation at the end of the input
-        && (**std::next(it)).getType() != OperatorType::GroupingEnd    // do not add concatenation before grouping end (e.g. "(a|b)")
-        && !isOperation((**std::next(it)).getType())) {                // do not add concatenation before an operator (e.g. "a+")
+      const bool addConcatenation =
+        op != Alternation{} &&                  // do not add concatenation after an alternation (e.g. "a|b")
+        op != GroupingStart{} &&                // do not add concatenation after grouping start (e.g. "(a|b)" )
+        std::next(it) != input.end() &&         // do not add concatenation at the end of the input 
+        **std::next(it) != GroupingEnd{} &&     // do not add concatenation before grouping end (e.g. "(a|b)")
+        !(**std::next(it)).isOperation();       // do not add concatenation before an operator (e.g. "a+")
+
+      if (addConcatenation)
         output.push_back(std::make_unique<Concatenation>());
-      }
     }
     return output;
   }
@@ -42,8 +45,8 @@ namespace regex {
   *  empties the stack do we add the position of both parentheses to the groupingStack.
   */
   std::stack<GroupingIterators> findOuterGroupings(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    Operator groupingStart{ GroupingStart{} };
-    Operator groupingEnd{ GroupingEnd{} };
+    GroupingStart groupingStart;
+    GroupingEnd groupingEnd;
     std::stack<OpDoubleVector::iterator> groupingStartStack;
     std::stack<GroupingIterators> groupingStack;
 
@@ -105,7 +108,7 @@ namespace regex {
       if (it + 1 == end)
         throw std::invalid_argument("Expression/grouping ends with an operator");
       ++it;
-      if (it->size() == 1 && isBinaryOperation(it->at(0)->getType()))
+      if (it->size() == 1 && it->at(0)->isBinaryOperation())
         throw std::invalid_argument("two consecutive binary operations");
     } while (it->empty());
     return it;
@@ -126,10 +129,11 @@ namespace regex {
     }
   }
 
-  void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end, bool (*typeCheck)(const OperatorType)) {
+  template <class T>
+  void mergeBinaryOperators(const OpDoubleVector::iterator begin, const OpDoubleVector::iterator end) {
     for (auto it = begin; it != end;) { // iterator incrementation is done in the body
       OpVector& currentElement = *it;
-      if (currentElement.size() == 1 && typeCheck(currentElement[0]->getType())) {
+      if (currentElement.size() == 1 && dynamic_cast<T*>(currentElement.at(0).get())) {
         auto operation = it;
         auto argLeft = getPreviousCharacter(it, begin);
         auto argRight = getNextCharacter(it, end);
@@ -142,16 +146,16 @@ namespace regex {
   }
 
   void mergeAlternations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    mergeBinaryOperators(begin, end, &isAlternation);
+    mergeBinaryOperators<Alternation>(begin, end);
   }
 
   void mergeConcatenations(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {
-    mergeBinaryOperators(begin, end, &isConcatenation);
+    mergeBinaryOperators<Concatenation>(begin, end);
   }
 
   namespace {
     bool isElementRepetition(OpDoubleVector::iterator it) {
-      return it->size() == 1 && isRepition(it->at(0)->getType());
+      return it->size() == 1 && it->at(0)->isRepetition();
     }
 
     bool isFirstElementRepetition(OpDoubleVector::iterator begin, OpDoubleVector::iterator end) {

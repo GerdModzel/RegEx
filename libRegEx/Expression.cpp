@@ -13,7 +13,7 @@ namespace regex {
   Expression::Expression(const OpVector& i_characters)
     : characters{} {
     for (const auto& ch : i_characters)
-      characters.push_back(std::make_unique<Operator>(*ch));
+      characters.push_back(ch->clone());
   }
 
 }

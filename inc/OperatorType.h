@@ -15,38 +15,5 @@ enum class OperatorType
   , GroupingEnd       // ')': ends a group
   };
 
-  inline bool isOperation(const OperatorType type) {
-    return type == OperatorType::Alternation || type == OperatorType::Concatenation || type == OperatorType::OneOrMore
-        || type == OperatorType::ZeroOrMore || type == OperatorType::ZeroOrOne;
-  }
-
-  inline bool isRepition(const OperatorType type) {
-    return type == OperatorType::OneOrMore || type == OperatorType::ZeroOrMore || type == OperatorType::ZeroOrOne;
-  }
-
-  inline bool isBinaryOperation(const OperatorType type) {
-    return type == OperatorType::Alternation || type == OperatorType::Concatenation;
-  }
-
-  inline bool isAlternation(const OperatorType type) {
-    return type == OperatorType::Alternation;
-  }
-
-  inline bool isConcatenation(const OperatorType type) {
-    return type == OperatorType::Concatenation;
-  }
-
-  inline bool isMatching(const OperatorType type) {
-    return type == OperatorType::Literal || type == OperatorType::Wildcard;
-  }
-
-  inline bool isGroupingStart(const OperatorType type) {
-    return type == OperatorType::GroupingStart;
-  }
-
-  inline bool isGroupingEnd(const OperatorType type) {
-    return type == OperatorType::GroupingEnd;
-  }
-
 }
 

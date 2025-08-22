@@ -5,8 +5,11 @@
 using namespace regex;
 
 TEST(ExpressionTest, AllInOne) {
-  const OpVector ops = createOpVector({ Literal{'c'}, Alternation{} });
+  regex::OpVector ops;
+  ops.push_back(std::make_unique<regex::Literal>('c'));
+  ops.push_back(std::make_unique<regex::Alternation>());
   Expression expr{ ops };
+
   EXPECT_EQ(expr.size(), 2);
   EXPECT_EQ(expr.empty(), false);
 

@@ -121,7 +121,10 @@ namespace {
 
 
   TEST(addConcatenationOperators, ConcatenationInInput) {
-    const OpVector input = createOpVector({ Literal{'a'}, Concatenation{}, Literal{ 'b' } });
+    OpVector input;
+    input.push_back(std::make_unique<Literal>('a'));
+    input.push_back(std::make_unique<Concatenation>());
+    input.push_back(std::make_unique<Literal>('b'));
     EXPECT_THROW(addConcatenationOperators(input), std::invalid_argument);
   }
 
