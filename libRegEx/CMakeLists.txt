@@ -1,4 +1,4 @@
-﻿file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../inc/*.h")
+﻿file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../inc/*.h" "../inc/op/*.h")
 
 add_library(libRegEx find.cpp ParseResult.cpp NfaState.cpp NfaBuilder.cpp Expression.cpp calculateHitMask.cpp ExpressionBuilder.cpp ExpressionBuildFunctions.cpp NfaFragmentSearch.cpp NfaFragment.cpp ${HEADER_LIST})
 

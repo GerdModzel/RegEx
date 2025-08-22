@@ -21,7 +21,7 @@ add_executable(testLibRegEx
                src/testParseResult.cpp 
                src/testNfaBuilder.cpp)
 
-# I'm using C++17 in the test
+# I'm using C++20 in the test
 target_compile_features(testLibRegEx PRIVATE cxx_std_20)
 
 # Should be linked to testing library
