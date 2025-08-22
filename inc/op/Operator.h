@@ -1,6 +1,5 @@
 #pragma once
 
-#include "OperatorType.h"
 #include "OperatorVisitor.h"
 
 #include <optional>
@@ -16,13 +15,8 @@ namespace regex::op {
 
 
   class Operator {
-  protected:
-    explicit Operator(OperatorType i_type)
-      : type(i_type)
-    {
-    }
-
   public:
+    Operator() = default;
     virtual ~Operator() = default;
     virtual std::unique_ptr<Operator> clone() const = 0;
 
@@ -32,19 +26,11 @@ namespace regex::op {
     virtual bool isBinaryOperation() const = 0;
 
     virtual void accept(op::OperatorVisitor* visitor) = 0;
-
-    OperatorType const getType() const {
-      return type;
-    }
-  protected:
-    OperatorType type;
   };
 
   class Wildcard : public Operator {
   public:
-    Wildcard()
-      : Operator(OperatorType::Wildcard) {
-    }
+    Wildcard() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<Wildcard>(*this);
     }
@@ -60,9 +46,7 @@ namespace regex::op {
 
   class Concatenation : public Operator {
   public:
-    Concatenation()
-      : Operator(OperatorType::Concatenation) {
-    }
+    Concatenation() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<Concatenation>(*this);
     }
@@ -78,9 +62,7 @@ namespace regex::op {
 
   class Alternation : public Operator {
   public:
-    Alternation()
-      : Operator(OperatorType::Alternation) {
-    }
+    Alternation() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<Alternation>(*this);
     }
@@ -97,8 +79,7 @@ namespace regex::op {
   class Literal : public Operator {
   public:
     explicit Literal(char value)
-      : Operator(OperatorType::Literal)
-      , value(value) {
+      : value(value) {
     }
     ~Literal() override = default;
     std::unique_ptr<Operator> clone() const override {
@@ -122,9 +103,7 @@ namespace regex::op {
 
   class ZeroOrOne : public Operator {
   public:
-    ZeroOrOne()
-      : Operator(OperatorType::ZeroOrOne) {
-    }
+    ZeroOrOne() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<ZeroOrOne>(*this);
     }
@@ -140,9 +119,7 @@ namespace regex::op {
 
   class OneOrMore : public Operator {
   public:
-    OneOrMore()
-      : Operator(OperatorType::OneOrMore) {
-    }
+    OneOrMore() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<OneOrMore>(*this);
     }
@@ -158,9 +135,7 @@ namespace regex::op {
 
   class ZeroOrMore : public Operator {
   public:
-    ZeroOrMore()
-      : Operator(OperatorType::ZeroOrMore) {
-    }
+    ZeroOrMore() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<ZeroOrMore>(*this);
     }
@@ -176,9 +151,7 @@ namespace regex::op {
 
   class GroupingStart : public Operator {
   public:
-    GroupingStart()
-      : Operator(OperatorType::GroupingStart) {
-    }
+    GroupingStart() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<GroupingStart>(*this);
     }
@@ -194,9 +167,7 @@ namespace regex::op {
 
   class GroupingEnd : public Operator {
   public:
-    GroupingEnd()
-      : Operator(OperatorType::GroupingEnd) {
-    }
+    GroupingEnd() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<GroupingEnd>(*this);
     }
@@ -212,9 +183,7 @@ namespace regex::op {
 
   class Match : public Operator {
   public:
-    Match()
-      : Operator(OperatorType::Match) {
-    }
+    Match() = default;
     std::unique_ptr<Operator> clone() const override {
       return std::make_unique<Match>(*this);
     }

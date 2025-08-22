@@ -13,14 +13,14 @@ TEST(Operator, AllTypes) {
   values.push_back(std::make_unique<op::ZeroOrOne>());
   values.push_back(std::make_unique<op::ZeroOrMore>());
   values.push_back(std::make_unique<op::OneOrMore>());
-  //values.push_back(std::make_unique<Match>());
+  values.push_back(std::make_unique<op::Match>());
   values.push_back(std::make_unique<op::GroupingStart>());
   values.push_back(std::make_unique<op::GroupingEnd>());
 
-  const std::vector<bool> isRepetitionExp{ false, false, false, false, true, true, true, /*false,*/ false, false };
-  const std::vector<bool> isOperationExp{ true, true, false, false, true, true, true, /*false,*/ false, false };
-  const std::vector<bool> isBinaryExp{ true, true, false, false, false, false, false, /*false,*/ false, false };
-  const std::string representationExp{ "&|.a?*+()" };
+  const std::vector<bool> isRepetitionExp{ false, false, false, false, true, true, true, false, false, false };
+  const std::vector<bool> isOperationExp{ true, true, false, false, true, true, true, false, false, false };
+  const std::vector<bool> isBinaryExp{ true, true, false, false, false, false, false, false, false, false };
+  const std::string representationExp{ "&|.a?*+#()" };
 
   std::vector<bool> isRepetitionResult, isOperationResult, isBinaryResult;
   std::string representationResult;
@@ -37,15 +37,9 @@ TEST(Operator, AllTypes) {
   EXPECT_EQ(representationResult, representationExp);
 }
 
-TEST(OperatorTest, LiteralConstructorAndGetters) {
+TEST(OperatorTest, LiteralGetter) {
   op::Literal op('a');
-  EXPECT_EQ(op.getType(), OperatorType::Literal);
   EXPECT_EQ(op.getValue(), 'a');
-}
-
-TEST(OperatorTest, TypeConstructorAndGetters) {
-  op::Wildcard op;
-  EXPECT_EQ(op.getType(), OperatorType::Wildcard);
 }
 
 TEST(OperatorTest, EqualityOperator) {

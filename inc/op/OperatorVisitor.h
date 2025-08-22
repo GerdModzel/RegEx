@@ -28,7 +28,7 @@ namespace regex {
       virtual void visit(ZeroOrMore const * const op) { throw std::invalid_argument("zero-or-more operation is not implemented for this search algorithm"); }
       virtual void visit(GroupingStart const * const op) { throw std::invalid_argument("grouping-start operation is not implemented for this search algorithm"); }
       virtual void visit(GroupingEnd const * const op) { throw std::invalid_argument("grouping-end operation is not implemented for this search algorithm"); }
-      virtual void visit(Match const * const op) = 0;
+      virtual void visit(Match const* const op) = 0; // Match has to be implemented, as it is essential for the search algorithm
     };
 
   }

@@ -11,7 +11,7 @@ namespace regex {
     for (auto it = input.begin(); it != input.end(); ++it) {
       op::Operator& op = **it;
 
-      if (op.getType() == OperatorType::Concatenation)
+      if (op == op::Concatenation{})
         throw std::invalid_argument("there should be no explicit concatenation operator in the input");
 
       output.push_back(op.clone());
@@ -133,7 +133,7 @@ namespace regex {
   void mergeBinaryOperators(const op::DoubleVector::iterator begin, const op::DoubleVector::iterator end) {
     for (auto it = begin; it != end;) { // iterator incrementation is done in the body
       op::Vector& currentElement = *it;
-      if (currentElement.size() == 1 && dynamic_cast<T*>(currentElement.at(0).get())) {
+      if (currentElement.size() == 1 && *currentElement.at(0) == T{}) {
         auto operation = it;
         auto argLeft = getPreviousCharacter(it, begin);
         auto argRight = getNextCharacter(it, end);

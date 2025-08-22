@@ -40,7 +40,8 @@ namespace regex {
   op::DoubleVector::iterator getNextCharacter(op::DoubleVector::iterator it, op::DoubleVector::iterator end);
 
   /// Merges binary operators with the preceding two arguments.
-  void mergeBinaryOperators(const op::DoubleVector::iterator begin, const op::DoubleVector::iterator end, bool (*typeCheck)(const OperatorType));
+  template <class T>
+  void mergeBinaryOperators(const op::DoubleVector::iterator begin, const op::DoubleVector::iterator end);
 
   /// Merges alternation operators with the preceding two arguments.
   void mergeAlternations(op::DoubleVector::iterator begin, op::DoubleVector::iterator end);
