@@ -5,7 +5,6 @@
 #include "NfaFragment.h"
 #include "op/OperatorVisitor.h"
 
-#include <string_view>
 #include <stack>
 
 namespace regex {

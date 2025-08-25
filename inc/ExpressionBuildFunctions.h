@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Expression.h"
+#include "op/Types.h"
 
 #include <stack>
+#include <string_view>
 
 namespace regex {
 

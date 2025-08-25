@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include "op/AllOperatorIncludes.h"
 #include "op/Operator.h"
+#include "op/Types.h"
 
 using namespace regex;
 

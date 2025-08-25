@@ -4,6 +4,8 @@
 #include "ExpressionBuilder.h"
 #include "ExpressionBuildFunctions.h"
 
+#include <string_view>
+
 namespace regex {
 
   Expression buildNfaExpression(std::string_view searchString) {
@@ -11,5 +13,5 @@ namespace regex {
     return builder.build(searchString);
   }
 
-
 }
+

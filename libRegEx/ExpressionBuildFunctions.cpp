@@ -1,8 +1,14 @@
 #include "ExpressionBuildFunctions.h"
 
+#include "op/Alternation.h"
+#include "op/Concatenation.h"
+#include "op/GroupingStart.h"
+#include "op/GroupingEnd.h"
+
 #include <cassert>
 #include <stack>
 #include <vector>
+#include <stdexcept>
 
 namespace regex {
 

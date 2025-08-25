@@ -1,5 +1,8 @@
 #include "NfaBuilder.h"
 
+#include "op/Match.h"
+#include "op/Literal.h"
+
 #include <cassert>
 
 using namespace regex;

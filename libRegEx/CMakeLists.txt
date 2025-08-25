@@ -11,6 +11,8 @@ add_library(libRegEx
 	ExpressionBuildFunctions.cpp 
 	NfaFragmentSearch.cpp 
 	NfaFragment.cpp 
+	op/Utils.cpp
+	op/Operator.cpp
 	${HEADER_LIST})
 
 target_include_directories(libRegEx PUBLIC ../inc)

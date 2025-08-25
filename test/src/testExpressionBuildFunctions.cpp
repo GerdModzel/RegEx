@@ -2,6 +2,8 @@
 
 #include "ExpressionBuildFunctions.h"
 #include "Expression.h"
+#include "op/Literal.h"
+#include "op/Concatenation.h"
 
 #include <string>
 #include <vector>

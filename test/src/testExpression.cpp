@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "Convenience.h"
+#include "op/Types.h"
+#include "Expression.h"
+#include "op/Alternation.h"
+#include "op/Literal.h"
 
 using namespace regex;
 

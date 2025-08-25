@@ -1,6 +1,8 @@
 #pragma once
 
 #include "op/Operator.h"
+#include "op/Types.h"
+#include "op/Utils.h"
 
 #include <vector>
 #include <string>
