@@ -22,7 +22,6 @@ namespace regex::op {
 
     virtual char toChar() const = 0;
     virtual bool isRepetition() const = 0;
-    virtual bool isOperation() const = 0;
     virtual bool isBinaryOperation() const = 0;
 
     virtual void accept(op::OperatorVisitor* visitor) = 0;
@@ -37,7 +36,6 @@ namespace regex::op {
 
     char toChar() const override { return '.'; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return false; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -53,7 +51,6 @@ namespace regex::op {
 
     char toChar() const override { return '&'; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return true; }
     bool isBinaryOperation() const { return true; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -69,7 +66,6 @@ namespace regex::op {
 
     char toChar() const override { return '|'; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return true; }
     bool isBinaryOperation() const { return true; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -93,7 +89,6 @@ namespace regex::op {
       return getValue();
     }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return false; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -110,7 +105,6 @@ namespace regex::op {
 
     char toChar() const override { return '?'; }
     bool isRepetition() const override { return true; }
-    bool isOperation() const { return true; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -126,7 +120,6 @@ namespace regex::op {
 
     char toChar() const override { return '+'; }
     bool isRepetition() const override { return true; }
-    bool isOperation() const { return true; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -142,7 +135,6 @@ namespace regex::op {
 
     char toChar() const override { return '*'; }
     bool isRepetition() const override { return true; }
-    bool isOperation() const { return true; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -158,7 +150,6 @@ namespace regex::op {
 
     char toChar() const override { return '('; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return false; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -174,7 +165,6 @@ namespace regex::op {
 
     char toChar() const override { return ')'; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return false; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
@@ -190,7 +180,6 @@ namespace regex::op {
 
     char toChar() const override { return '#'; }
     bool isRepetition() const override { return false; }
-    bool isOperation() const { return false; }
     bool isBinaryOperation() const { return false; }
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);

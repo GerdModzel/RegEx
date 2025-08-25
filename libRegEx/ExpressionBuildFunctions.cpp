@@ -19,9 +19,10 @@ namespace regex {
       const bool addConcatenation =
         op != op::Alternation{} &&                  // do not add concatenation after an alternation (e.g. "a|b")
         op != op::GroupingStart{} &&                // do not add concatenation after grouping start (e.g. "(a|b)" )
-        std::next(it) != input.end() &&         // do not add concatenation at the end of the input 
+        std::next(it) != input.end() &&             // do not add concatenation at the end of the input 
         **std::next(it) != op::GroupingEnd{} &&     // do not add concatenation before grouping end (e.g. "(a|b)")
-        !(**std::next(it)).isOperation();       // do not add concatenation before an operator (e.g. "a+")
+        !(**std::next(it)).isRepetition() &&        // do not add concatenation before a repetition operator (e.g. "a+")
+        !(**std::next(it)).isBinaryOperation();     // do not add concatenation before a binary operator (e.g. "a|b")
 
       if (addConcatenation)
         output.push_back(std::make_unique<op::Concatenation>());

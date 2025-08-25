@@ -18,7 +18,6 @@ TEST(Operator, AllTypes) {
   values.push_back(std::make_unique<op::GroupingEnd>());
 
   const std::vector<bool> isRepetitionExp{ false, false, false, false, true, true, true, false, false, false };
-  const std::vector<bool> isOperationExp{ true, true, false, false, true, true, true, false, false, false };
   const std::vector<bool> isBinaryExp{ true, true, false, false, false, false, false, false, false, false };
   const std::string representationExp{ "&|.a?*+#()" };
 
@@ -26,13 +25,11 @@ TEST(Operator, AllTypes) {
   std::string representationResult;
   for (const auto& val : values) {
     isRepetitionResult.push_back(val->isRepetition());
-    isOperationResult.push_back(val->isOperation());
     isBinaryResult.push_back(val->isBinaryOperation());
     representationResult.push_back(val->toChar());
   }
 
   EXPECT_EQ(isRepetitionResult, isRepetitionExp);
-  EXPECT_EQ(isOperationResult, isOperationExp);
   EXPECT_EQ(isBinaryResult, isBinaryExp);
   EXPECT_EQ(representationResult, representationExp);
 }
