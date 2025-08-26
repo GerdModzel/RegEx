@@ -20,7 +20,7 @@ namespace regex {
     Expression expr = exprBuilder.build(searchString);
 
     NfaBuilder nfaBuilder;
-    NfaFragment nfa = nfaBuilder.createNfaFragment(expr);
+    NfaComplete nfa = nfaBuilder.createNfaFragment(expr);
 
     return executeSearch(text, &nfa);
   }

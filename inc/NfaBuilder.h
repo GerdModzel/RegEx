@@ -3,6 +3,7 @@
 #include "NfaState.h"
 #include "Expression.h"
 #include "NfaFragment.h"
+#include "NfaComplete.h"
 #include "op/OperatorVisitor.h"
 
 #include <stack>
@@ -23,9 +24,9 @@ namespace regex {
      * The method is described at https://swtch.com/~rsc/regexp/regexp1.html.
      * 
      * \param expr The regular expression to convert into an NFA fragment.
-     * \return An NfaFragment representing the NFA for the given expression.
+     * \return An NfaComplete object representing the complete NFA for the given expression.
     */
-    NfaFragment createNfaFragment(const regex::Expression& expr);
+    NfaComplete createNfaFragment(const regex::Expression& expr);
 
     /// creates a new NFA fragment for the concatenation operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
     void visit(op::Concatenation const* const op) override;
@@ -45,6 +46,7 @@ namespace regex {
     void visit(op::Match const* const op) override;
   private:
     FragmentStack fragmentStack;
+    std::vector<std::unique_ptr<NfaState>> stateManager;
   };
 
 }
