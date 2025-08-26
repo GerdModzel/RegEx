@@ -42,8 +42,6 @@ namespace regex {
     /// creates a new NFA fragment for the zero-or-more operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
     void visit(op::ZeroOrMore const* const op) override;
     /// creates a new NFA fragment that represents a successful match; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
-//      void visit(GroupingStart const * const op) override;
- //     void visit(GroupingEnd const * const op) override;
     void visit(op::Match const* const op) override;
   private:
     FragmentStack fragmentStack;

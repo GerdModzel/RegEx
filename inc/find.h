@@ -16,5 +16,5 @@ namespace regex {
    * @param searchString The regular expression to search for within the text.
    * @returns A vector of ParseResult objects representing each match of the regular expression in the text.
    */
-  std::vector<ParseResult> find(std::string_view text, std::string_view searchString);
+  std::vector<ParseResult> search(std::string_view text, std::string_view searchString);
 }

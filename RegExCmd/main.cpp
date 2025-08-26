@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 			std::getline(std::cin, searchString);
 			if (searchString == ":q")
 				break;
-			const auto parseResult = regex::find(text, searchString);
+			const auto parseResult = regex::search(text, searchString);
 			const regex::HitMask hitMask = regex::calculateHitMask(parseResult, text.size());
 			std::cout << parseResult.size() << " matches found" << std::endl;
 			if (!parseResult.empty()) {

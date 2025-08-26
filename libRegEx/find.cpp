@@ -12,7 +12,7 @@
 
 namespace regex {
 
-  std::vector<ParseResult> find(std::string_view text, std::string_view searchString) {
+  std::vector<ParseResult> search(std::string_view text, std::string_view searchString) {
     if (text.empty() || searchString.empty())
       throw std::invalid_argument("text or search string cannot be empty");
 
