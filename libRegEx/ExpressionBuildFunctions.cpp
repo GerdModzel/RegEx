@@ -36,7 +36,7 @@ namespace regex {
     return output;
   }
 
-  op::DoubleVector convertToVectorExpression(op::Vector& arg) {
+  op::DoubleVector convertToDoubleVector(op::Vector& arg) {
     op::DoubleVector result;
     for (auto& el : arg) {
       result.push_back({});
@@ -199,7 +199,7 @@ namespace regex {
   op::Vector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
     const auto replacedCharacters = op::convertStringToOpVector(searchString);
     auto addedConcatenation = addConcatenationOperators(replacedCharacters);
-    auto result = convertToVectorExpression(addedConcatenation);
+    auto result = convertToDoubleVector(addedConcatenation);
     orderExpression(result.begin(), result.end());
 
     op::Vector characters;
