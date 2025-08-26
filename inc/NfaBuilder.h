@@ -10,6 +10,38 @@
 
 namespace regex {
 
+class StateBuilder {
+public:
+  void setType(NfaState::Type type) { stateType = type; stateValue = std::nullopt; }
+  void setType(std::optional<char> value) { stateType = NfaState::Type::ch; stateValue = value; }
+  void connectToFragment(NfaFragment& frag) { nextStates.push_back(frag.startState); }
+  void createDanglingConnection() { nextStates.push_back(nullptr); }
+  void cutOffConnections() { nextStates = {}; }
+  std::unique_ptr<NfaState> build() { return std::make_unique<NfaState>(stateType, stateValue, nextStates); }
+private:
+  NfaState::Type stateType;
+  std::optional<char> stateValue = std::nullopt;
+  std::vector<NfaState*> nextStates;
+};
+
+class FragmentBuilder {
+public:
+  void setStartState(NfaState* state) { startState = state; }
+  void takeOverConnectionsFrom(const NfaFragment& frag) { nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end()); }
+  void takeOverConnection(NfaState** frag) { nextStates.push_back(frag); }
+  void attachToStateConnections(NfaState* state) { 
+    for (auto& ptr : state->nextStates)
+      nextStates.push_back(&ptr);
+  }
+  void connectToState(NfaState* state) { nextStates.push_back(&state->nextStates[0]); }
+  NfaFragment build() { return NfaFragment{startState, nextStates}; }
+private:
+  NfaState* startState;
+  std::vector<NfaState**> nextStates;
+};
+
+
+
   using FragmentStack = std::stack<NfaFragment>;
 
   class NfaBuilder : public op::OperatorVisitor {

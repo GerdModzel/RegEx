@@ -10,7 +10,7 @@ using namespace regex;
 
 namespace {
 
-  void connect(std::vector<NfaState**>& ptrList, NfaState* state) {
+  void connectStates(std::vector<NfaState**>& ptrList, NfaState* state) {
     for (auto& nextState : ptrList)
       *nextState = state;
   }
@@ -30,23 +30,13 @@ void NfaBuilder::visit(op::Concatenation const* const op) {
   NfaFragment fragFirst = std::move(fragmentStack.top());
   fragmentStack.pop();
 
-  connect(fragFirst.nextStates, fragSecond.startState);
+  connectStates(fragFirst.nextStates, fragSecond.startState);
 
-  NfaState* newFragStartState = fragFirst.startState;
-  std::vector<NfaState**> newFragNextStates{ fragSecond.nextStates };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(fragFirst.startState);
+  fragBuilder.takeOverConnectionsFrom(fragSecond);
+  fragmentStack.push(fragBuilder.build());
 }
-
-struct BuilderInfo {
-  bool newState;
-  NfaState::Type stateType;
-  std::optional<char> stateValue;
-  NfaState* nextState;
-  bool newFragment;
-  
-};
-
 
 void NfaBuilder::visit(op::Alternation const* const op) {
   assert(fragmentStack.size() >= 2);
@@ -55,33 +45,41 @@ void NfaBuilder::visit(op::Alternation const* const op) {
   NfaFragment fragFirst = std::move(fragmentStack.top());
   fragmentStack.pop();
 
-  std::vector<NfaState*> newStateNextStates{ fragFirst.startState, fragSecond.startState };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(NfaState::Type::split);
+  stateBuilder.connectToFragment(fragFirst);
+  stateBuilder.connectToFragment(fragSecond);
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  NfaState* newFragStartState = newState.get();
-  std::vector<NfaState**> newFragNextStates{ fragFirst.nextStates[0], fragSecond.nextStates[0] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(newState.get());
+  fragBuilder.takeOverConnectionsFrom(fragFirst);
+  fragBuilder.takeOverConnectionsFrom(fragSecond);
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::Wildcard const* const op) {
-  std::vector<NfaState*> newStateNextStates{ 1, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, std::nullopt, newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(std::nullopt);
+  stateBuilder.createDanglingConnection();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  NfaState* newFragStartState = newState.get();
-  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[0] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(newState.get());
+  fragBuilder.attachToStateConnections(newState.get());
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::Literal const* const op) {
-  std::vector<NfaState*> newStateNextStates{ 1, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::ch, op->getValue(), newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(op->getValue());
+  stateBuilder.createDanglingConnection();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  NfaState* newFragStartState = newState.get();
-  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[0] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(newState.get());
+  fragBuilder.attachToStateConnections(newState.get());
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::ZeroOrMore const* const op) {
@@ -90,15 +88,18 @@ void NfaBuilder::visit(op::ZeroOrMore const* const op) {
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
 
-  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(NfaState::Type::split);
+  stateBuilder.connectToFragment(frag);
+  stateBuilder.createDanglingConnection();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  connect(frag.nextStates, newState.get());
+  connectStates(frag.nextStates, newState.get());
 
-  NfaState* newFragStartState = newState.get();
-  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(newState.get());
+  fragBuilder.takeOverConnection(&newState->nextStates[1]);
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::OneOrMore const* const op) {
@@ -107,15 +108,18 @@ void NfaBuilder::visit(op::OneOrMore const* const op) {
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
 
-  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(NfaState::Type::split);
+  stateBuilder.connectToFragment(frag);
+  stateBuilder.createDanglingConnection();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  connect(frag.nextStates, newState.get());
+  connectStates(frag.nextStates, newState.get());
 
-  NfaState* newFragStartState = frag.startState;
-  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(frag.startState);
+  fragBuilder.takeOverConnection(&newState->nextStates[1]);
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::ZeroOrOne const* const op) {
@@ -124,21 +128,26 @@ void NfaBuilder::visit(op::ZeroOrOne const* const op) {
   NfaFragment frag = std::move(fragmentStack.top());
   fragmentStack.pop();
 
+  StateBuilder stateBuilder;
+  stateBuilder.setType(NfaState::Type::split);
+  stateBuilder.connectToFragment(frag);
+  stateBuilder.createDanglingConnection();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  std::vector<NfaState*> newStateNextStates{ frag.startState, nullptr };
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::split, std::nullopt, newStateNextStates));
-
-  NfaState* newFragStartState = newState.get();
-  std::vector<NfaState**> newFragNextStates{ &newState->nextStates[1], frag.nextStates[0] };
-  NfaFragment newFragment{ newFragStartState, newFragNextStates };
-  fragmentStack.push(std::move(newFragment));
+  FragmentBuilder fragBuilder;
+  fragBuilder.setStartState(newState.get());
+  fragBuilder.takeOverConnection(&newState->nextStates[1]);
+  fragBuilder.takeOverConnection(frag.nextStates[0]);
+  fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::Match const* const op) {
-  std::vector<NfaState*> newStateNextStates{};
-  auto& newState = stateManager.emplace_back(std::make_unique<NfaState>(NfaState::Type::match, std::nullopt, newStateNextStates));
+  StateBuilder stateBuilder;
+  stateBuilder.setType(NfaState::Type::match);
+  stateBuilder.cutOffConnections();
+  auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  connect(fragmentStack.top().nextStates, newState.get());
+  connectStates(fragmentStack.top().nextStates, newState.get());
 }
 
 NfaComplete NfaBuilder::createNfaFragment(const regex::Expression& expr) {

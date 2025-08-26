@@ -28,7 +28,7 @@ namespace regex {
    NfaState* startState;
     std::vector<NfaState**> nextStates;
   private:
-    friend class NfaBuilder;
+    friend class FragmentBuilder;
   };
 
 }
