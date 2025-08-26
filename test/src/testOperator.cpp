@@ -27,7 +27,7 @@ TEST(Operator, AllTypes) {
   std::string representationResult;
   for (const auto& val : values) {
     isRepetitionResult.push_back(val->isRepetition());
-    isBinaryResult.push_back(val->isBinaryOperation());
+    isBinaryResult.push_back(val->nArgumentsRequired() == 2);
     representationResult.push_back(val->toChar());
   }
 

@@ -12,11 +12,15 @@ namespace regex::op {
     Operator() = default;
     virtual ~Operator() = default;
     virtual std::unique_ptr<Operator> clone() const = 0;
-
+    
+    /// Returns a character representation of the operator.
     virtual char toChar() const = 0;
+    /// Returns true if the operator is a repetition operator (like '*', '+', '?').
     virtual bool isRepetition() const = 0;
-    virtual bool isBinaryOperation() const = 0;
-
+    ///  Returns the number of arguments the operator needs (Wildcard needs 0, Concatenation needs 2, ZeroOrMore needs 1).
+    virtual int nArgumentsRequired() const = 0;
+  
+    /// Accepts a visitor that can perform operations based on the specific operator type (Visitor Pattern).
     virtual void accept(op::OperatorVisitor* visitor) = 0;
   };
 

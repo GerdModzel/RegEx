@@ -127,8 +127,8 @@ void NfaBuilder::visit(op::Match const* const op) {
 
 NfaComplete NfaBuilder::createNfaFragment(const regex::Expression& expr) {
   for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
-    regex::op::Operator* ch = cit->get();
-    ch->accept(this);
+    regex::op::Operator* op = cit->get();
+    op->accept(this);
   }
   op::Match matchOperator;
   matchOperator.accept(this);

@@ -28,7 +28,7 @@ namespace regex {
         std::next(it) != input.end() &&             // do not add concatenation at the end of the input 
         **std::next(it) != op::GroupingEnd{} &&     // do not add concatenation before grouping end (e.g. "(a|b)")
         !(**std::next(it)).isRepetition() &&        // do not add concatenation before a repetition operator (e.g. "a+")
-        !(**std::next(it)).isBinaryOperation();     // do not add concatenation before a binary operator (e.g. "a|b")
+        (**std::next(it)).nArgumentsRequired() != 2;// do not add concatenation before a binary operator (e.g. "a|b")
 
       if (addConcatenation)
         output.push_back(std::make_unique<op::Concatenation>());
@@ -124,7 +124,7 @@ namespace regex {
       if (it + 1 == end)
         throw std::invalid_argument("Expression/grouping ends with an operator");
       ++it;
-      if (it->size() == 1 && it->at(0)->isBinaryOperation())
+      if (it->size() == 1 && it->at(0)->nArgumentsRequired() == 2)
         throw std::invalid_argument("two consecutive binary operations");
     } while (it->empty());
     return it;

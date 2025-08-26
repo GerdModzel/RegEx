@@ -14,7 +14,7 @@ namespace regex::op {
 
     char toChar() const override { return '&'; }
     bool isRepetition() const override { return false; }
-    bool isBinaryOperation() const { return true; }
+    int nArgumentsRequired() const override { return 2; };
     virtual void accept(op::OperatorVisitor* visitor) override {
       visitor->visit(this);
     }
