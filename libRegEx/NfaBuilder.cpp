@@ -17,6 +17,12 @@ namespace {
 
 }
 
+void NfaBuilder::reset() {
+  while (!fragmentStack.empty())
+    fragmentStack.pop();
+  stateManager.clear();
+}
+
 void NfaBuilder::visit(op::Concatenation const* const op) {
   assert(fragmentStack.size() >= 2);
   NfaFragment fragSecond = std::move(fragmentStack.top());
@@ -31,6 +37,16 @@ void NfaBuilder::visit(op::Concatenation const* const op) {
   NfaFragment newFragment{ newFragStartState, newFragNextStates };
   fragmentStack.push(std::move(newFragment));
 }
+
+struct BuilderInfo {
+  bool newState;
+  NfaState::Type stateType;
+  std::optional<char> stateValue;
+  NfaState* nextState;
+  bool newFragment;
+  
+};
+
 
 void NfaBuilder::visit(op::Alternation const* const op) {
   assert(fragmentStack.size() >= 2);
@@ -126,6 +142,8 @@ void NfaBuilder::visit(op::Match const* const op) {
 }
 
 NfaComplete NfaBuilder::createNfaFragment(const regex::Expression& expr) {
+  reset();
+
   for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
     regex::op::Operator* op = cit->get();
     op->accept(this);
