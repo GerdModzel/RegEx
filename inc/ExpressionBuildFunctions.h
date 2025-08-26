@@ -26,7 +26,10 @@ namespace regex {
   op::Vector addConcatenationOperators(const op::Vector& input);
 
   ///  converts a vector of Operators to a vector of vector of Operators. This is needed to handle grouping and operator precedence.
-  op::DoubleVector convertToDoubleVector(op::Vector& arg);
+  op::DoubleVector convertToDoubleVector(const op::Vector& arg);
+
+  /// convert a vector of vector of Operators back to a vector of Operators by merging all inner vectors.
+  op::Vector convertToSingleVector(const op::DoubleVector& arg);
 
   /// Finds all outer groupings in an op::DoubleVector and returns a stack of pairs of iterators representing the start and end of each grouping.
   /// E.g. "(()) returns the two outer parentheses.

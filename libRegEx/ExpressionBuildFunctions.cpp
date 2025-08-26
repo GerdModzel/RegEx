@@ -36,11 +36,20 @@ namespace regex {
     return output;
   }
 
-  op::DoubleVector convertToDoubleVector(op::Vector& arg) {
+  op::DoubleVector convertToDoubleVector(const op::Vector& arg) {
     op::DoubleVector result;
     for (auto& el : arg) {
       result.push_back({});
-      result.back().push_back(std::move(el));
+      result.back().push_back(el->clone());
+    }
+    return result;
+  }
+
+  op::Vector convertToSingleVector(const op::DoubleVector& doubleVec) {
+    op::Vector result;
+    for (const auto& singleVec : doubleVec) {
+      for (const auto& element : singleVec)
+        result.push_back(element->clone());
     }
     return result;
   }
@@ -198,15 +207,11 @@ namespace regex {
 
   op::Vector buildExpressionArgumentsFirstOperatorLast(std::string_view searchString) {
     const auto replacedCharacters = op::convertStringToOpVector(searchString);
-    auto addedConcatenation = addConcatenationOperators(replacedCharacters);
-    auto result = convertToDoubleVector(addedConcatenation);
-    orderExpression(result.begin(), result.end());
+    const auto addedConcatenation = addConcatenationOperators(replacedCharacters);
 
-    op::Vector characters;
-    for (auto& ch : result)
-      characters.insert(characters.end(), std::make_move_iterator(ch.begin()), std::make_move_iterator(ch.end()));
-
-    return characters;
+    auto workingData = convertToDoubleVector(addedConcatenation);
+    orderExpression(workingData.begin(), workingData.end());
+    return convertToSingleVector(workingData);
   }
 
 }
