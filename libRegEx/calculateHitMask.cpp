@@ -5,12 +5,12 @@
 
 namespace regex {
 
-  HitMask calculateHitMask(const std::vector<ParseResult>& parseResults, const size_t textLength) {
+  HitMask calculateHitMask(const std::vector<SearchResult>& parseResults, const size_t textLength) {
     HitMask hitMask(textLength, 0);
     for (const auto& current : parseResults) {
 
       if (current.position() + current.size() > textLength)
-        throw std::out_of_range("ParseResult position or length are out of bounds");
+        throw std::out_of_range("SearchResult position or length are out of bounds");
 
       auto hitStart = hitMask.begin() + current.position();
       auto hitEnd = hitStart + current.size();

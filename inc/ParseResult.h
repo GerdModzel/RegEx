@@ -5,9 +5,9 @@
 
 namespace regex {
 
-  class ParseResult {
+  class SearchResult {
   public:
-    ParseResult(const size_t pos, const size_t size)
+    SearchResult(const size_t pos, const size_t size)
     : _position(pos)
     , _size(size) {
     }
@@ -25,12 +25,12 @@ namespace regex {
     size_t _size;
   };
 
-  inline bool operator==(const ParseResult& lhs, const ParseResult& rhs) {
+  inline bool operator==(const SearchResult& lhs, const SearchResult& rhs) {
     return lhs.position() == rhs.position() && lhs.size() == rhs.size();
   }
 
-  inline std::ostream& operator<<(std::ostream& os, const ParseResult& result) {
-    os << "ParseResult(position: " << result.position() << ", size: " << result.size() << ")";
+  inline std::ostream& operator<<(std::ostream& os, const SearchResult& result) {
+    os << "SearchResult(position: " << result.position() << ", size: " << result.size() << ")";
     return os;
   }
 

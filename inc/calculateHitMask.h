@@ -9,7 +9,7 @@ namespace regex {
 
   using HitMask = std::vector<unsigned char>;
 
-  HitMask calculateHitMask(const std::vector<ParseResult>& parseResults, const size_t textLength);
+  HitMask calculateHitMask(const std::vector<SearchResult>& parseResults, const size_t textLength);
 
 }
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 TEST(ParseResultTest, ConstructorAndGet) {
-  const regex::ParseResult parseResult{5, 10};
+  const regex::SearchResult parseResult{5, 10};
   ASSERT_EQ(parseResult.position(), 5);
   ASSERT_EQ(parseResult.size(), 10);
 }

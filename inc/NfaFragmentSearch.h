@@ -17,9 +17,9 @@
    * 
    * \param text The text to search for matches.
    * \param fragment The NFA fragment to use for matching.
-   * \return A vector of ParseResult objects representing the matches found in the text.
+   * \return A vector of SearchResult objects representing the matches found in the text.
    */
-  std::vector<ParseResult> executeSearch(std::string_view text, NfaFragment* fragment);
+  std::vector<SearchResult> executeSearch(std::string_view text, NfaFragment* fragment);
 
 }
 

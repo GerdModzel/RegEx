@@ -15,43 +15,43 @@ TEST(FindTest, EmptyText) {
 
 TEST(FindTest, characterSearch) {
   const auto results = regex::search("asbcdefbbcd", "bcd");
-  const std::vector<regex::ParseResult> expected{ regex::ParseResult(4, 1), regex::ParseResult(10, 1) };
+  const std::vector<regex::SearchResult> expected{ regex::SearchResult(4, 1), regex::SearchResult(10, 1) };
   ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithWildcard) {
   const auto results = regex::search("asbcdefbbbcccd", "b.c");
-  const std::vector<regex::ParseResult> expected{ regex::ParseResult(10, 1), regex::ParseResult(11, 1) };
+  const std::vector<regex::SearchResult> expected{ regex::SearchResult(10, 1), regex::SearchResult(11, 1) };
   ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithOneOrMore) {
   const auto results = regex::search("asbcdefbbbc", "b+c");
-  const std::vector<regex::ParseResult> expected{ regex::ParseResult(3, 1), regex::ParseResult(10, 1) };
+  const std::vector<regex::SearchResult> expected{ regex::SearchResult(3, 1), regex::SearchResult(10, 1) };
   ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithZeroOrMore) {
   const auto results = regex::search("ascdesbbbc", "sb*c");
-  const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(9, 1) };
+  const std::vector<regex::SearchResult> expected{ regex::SearchResult(2, 1), regex::SearchResult(9, 1) };
   ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithZeroOrOne) {
   const auto results = regex::search("ascdesbcdesbbbc", "sb?c");
-  const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(7, 1) };
+  const std::vector<regex::SearchResult> expected{ regex::SearchResult(2, 1), regex::SearchResult(7, 1) };
   ASSERT_EQ(results, expected);
 }
 
 TEST(FindTest, characterSearchWithAlternation) {
   const auto results = regex::search("asbcdefbbbc", "b|c");
-  const std::vector<regex::ParseResult> expected{
-    regex::ParseResult(2, 1),
-    regex::ParseResult(3, 1),
-    regex::ParseResult(7, 1),
-    regex::ParseResult(8, 1),
-    regex::ParseResult(9, 1),
-    regex::ParseResult(10, 1)
+  const std::vector<regex::SearchResult> expected{
+    regex::SearchResult(2, 1),
+    regex::SearchResult(3, 1),
+    regex::SearchResult(7, 1),
+    regex::SearchResult(8, 1),
+    regex::SearchResult(9, 1),
+    regex::SearchResult(10, 1)
   };
   ASSERT_EQ(results, expected);
 }
@@ -59,11 +59,11 @@ TEST(FindTest, characterSearchWithGrouping) {
   const std::string text = "acdefabd";
   {
     const auto results = regex::search(text, "a(b|c)d");
-    const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(7, 1) };
+    const std::vector<regex::SearchResult> expected{ regex::SearchResult(2, 1), regex::SearchResult(7, 1) };
     ASSERT_EQ(results, expected);
   } {
     const auto results = regex::search(text, "ab|cd");
-    const std::vector<regex::ParseResult> expected{ regex::ParseResult(2, 1), regex::ParseResult(6, 1) };
+    const std::vector<regex::SearchResult> expected{ regex::SearchResult(2, 1), regex::SearchResult(6, 1) };
     ASSERT_EQ(results, expected);
   }
 }

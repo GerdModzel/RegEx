@@ -38,7 +38,7 @@ namespace regex {
       }
     }
 
-    void extractMatches(const std::vector<NfaState*>& stateList, std::vector<ParseResult>& matchList, const int counter) {
+    void extractMatches(const std::vector<NfaState*>& stateList, std::vector<SearchResult>& matchList, const int counter) {
       for (const auto& state : stateList) {
         if (state->type == NfaState::Type::match)
           matchList.emplace_back(static_cast<size_t>(counter), 1u);
@@ -49,11 +49,11 @@ namespace regex {
 
   /* When a character is processed, a check is made whether it matches any of the NfaStates in currentStateList.
   *  If it does, the state's next states are added to nextStateList. If any of the next states is a match state,
-  *  a match was found and a ParseResult is created. For the next loop, nextStateList becomes the new currentStateList,
+  *  a match was found and a SearchResult is created. For the next loop, nextStateList becomes the new currentStateList,
   *  and the new nextStateList is cleared except for the start state. The start state is always on the list.
   */
-  std::vector<ParseResult> executeSearch(std::string_view text, NfaFragment* fragment) {
-    std::vector<ParseResult> resultList;
+  std::vector<SearchResult> executeSearch(std::string_view text, NfaFragment* fragment) {
+    std::vector<SearchResult> resultList;
     std::vector<NfaState*> cStateList, nStateList;
     std::vector<NfaState*>& currentStateList = cStateList;
     std::vector<NfaState*>& nextStateList = nStateList;
