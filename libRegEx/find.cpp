@@ -21,7 +21,6 @@ namespace regex {
 
     NfaBuilder nfaBuilder;
     NfaFragment nfa = nfaBuilder.createNfaFragment(expr);
-    std::vector<SearchResult> results;
 
     return executeSearch(text, &nfa);
   }
