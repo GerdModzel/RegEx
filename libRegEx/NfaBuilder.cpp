@@ -23,38 +23,46 @@ void NfaBuilder::reset() {
   stateManager.clear();
 }
 
-void NfaBuilder::visit(op::Concatenation const* const op) {
+NfaFragment NfaBuilder::popOneFragmentFromStack() {
+  assert(fragmentStack.size() >= 1);
+  NfaFragment fragment = std::move(fragmentStack.top());
+  fragmentStack.pop();
+  return fragment;
+}
+
+std::pair<NfaFragment, NfaFragment> NfaBuilder::popTwoFragmentsFromStack() {
   assert(fragmentStack.size() >= 2);
   NfaFragment fragSecond = std::move(fragmentStack.top());
   fragmentStack.pop();
   NfaFragment fragFirst = std::move(fragmentStack.top());
   fragmentStack.pop();
+  return { std::move(fragFirst), std::move(fragSecond) };
+}
 
-  connectStates(fragFirst.nextStates, fragSecond.startState);
+void NfaBuilder::visit(op::Concatenation const* const op) {
+  auto [olderFragment, oldFragment] = popTwoFragmentsFromStack();
+
+  connectStates(olderFragment.nextStates, oldFragment.startState);
 
   FragmentBuilder fragBuilder;
-  fragBuilder.setStartState(fragFirst.startState);
-  fragBuilder.takeOverConnectionsFrom(fragSecond);
+  fragBuilder.setStartState(olderFragment.startState);
+  fragBuilder.takeOverConnectionsFrom(oldFragment);
   fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::Alternation const* const op) {
-  assert(fragmentStack.size() >= 2);
-  NfaFragment fragSecond = std::move(fragmentStack.top());
-  fragmentStack.pop();
-  NfaFragment fragFirst = std::move(fragmentStack.top());
-  fragmentStack.pop();
+  auto [olderFragment, oldFragment] = popTwoFragmentsFromStack();
 
   StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
-  stateBuilder.connectToFragment(fragFirst);
-  stateBuilder.connectToFragment(fragSecond);
+  stateBuilder.connectToFragment(olderFragment);
+  stateBuilder.connectToFragment(oldFragment);
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
   FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
-  fragBuilder.takeOverConnectionsFrom(fragFirst);
-  fragBuilder.takeOverConnectionsFrom(fragSecond);
+  fragBuilder.takeOverConnectionsFrom(olderFragment);
+  fragBuilder.takeOverConnectionsFrom(oldFragment);
   fragmentStack.push(fragBuilder.build());
 }
 
@@ -83,18 +91,15 @@ void NfaBuilder::visit(op::Literal const* const op) {
 }
 
 void NfaBuilder::visit(op::ZeroOrMore const* const op) {
-  assert(fragmentStack.size() >= 1);
-
-  NfaFragment frag = std::move(fragmentStack.top());
-  fragmentStack.pop();
+  auto oldFragment = popOneFragmentFromStack();
 
   StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
-  stateBuilder.connectToFragment(frag);
+  stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  connectStates(frag.nextStates, newState.get());
+  connectStates(oldFragment.nextStates, newState.get());
 
   FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
@@ -103,41 +108,35 @@ void NfaBuilder::visit(op::ZeroOrMore const* const op) {
 }
 
 void NfaBuilder::visit(op::OneOrMore const* const op) {
-  assert(fragmentStack.size() >= 1);
-
-  NfaFragment frag = std::move(fragmentStack.top());
-  fragmentStack.pop();
+  auto oldFragment = popOneFragmentFromStack();
 
   StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
-  stateBuilder.connectToFragment(frag);
+  stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  connectStates(frag.nextStates, newState.get());
+  connectStates(oldFragment.nextStates, newState.get());
 
   FragmentBuilder fragBuilder;
-  fragBuilder.setStartState(frag.startState);
+  fragBuilder.setStartState(oldFragment.startState);
   fragBuilder.takeOverConnection(&newState->nextStates[1]);
   fragmentStack.push(fragBuilder.build());
 }
 
 void NfaBuilder::visit(op::ZeroOrOne const* const op) {
-  assert(fragmentStack.size() >= 1);
-
-  NfaFragment frag = std::move(fragmentStack.top());
-  fragmentStack.pop();
+  NfaFragment oldFragment = popOneFragmentFromStack();
 
   StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
-  stateBuilder.connectToFragment(frag);
+  stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
   FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.takeOverConnection(&newState->nextStates[1]);
-  fragBuilder.takeOverConnection(frag.nextStates[0]);
+  fragBuilder.takeOverConnection(oldFragment.nextStates[0]);
   fragmentStack.push(fragBuilder.build());
 }
 

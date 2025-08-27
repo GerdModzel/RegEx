@@ -14,7 +14,7 @@ namespace regex {
    * NfaFragments are used to build the NFA incrementally. The end result is a fragment that represents
    * the complete NFA and can be used to search for matches in a given text.
    * 
-   * Only the NfaBuilder class can create NfaFragments.
+   * Only the FragmentBuilder class can create NfaFragments.
    */
   struct NfaFragment {
   private:

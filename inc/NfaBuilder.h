@@ -59,6 +59,8 @@ private:
      * \return An NfaComplete object representing the complete NFA for the given expression.
     */
     NfaComplete createNfaFragment(const regex::Expression& expr);
+    NfaFragment popOneFragmentFromStack();
+    std::pair<NfaFragment, NfaFragment> popTwoFragmentsFromStack();
 
     /// creates a new NFA fragment for the concatenation operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
     void visit(op::Concatenation const* const op) override;
