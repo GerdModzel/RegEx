@@ -8,15 +8,16 @@
 
 namespace regex {
 
-  struct NfaFragment;
 
   namespace nfa {
+
+  struct Fragment;
 
 class StateBuilder {
 public:
   void setType(State::Type type);
   void setType(std::optional<char> value);
-  void connectToFragment(NfaFragment& frag);
+  void connectToFragment(Fragment& frag);
   void createDanglingConnection();
   void cutOffConnections();
   std::unique_ptr<State> build();

@@ -25,18 +25,18 @@ namespace regex::nfa {
     stateManager.clear();
   }
 
-  NfaFragment MainBuilder::popOneFragmentFromStack() {
+  Fragment MainBuilder::popOneFragmentFromStack() {
     assert(fragmentStack.size() >= 1);
-    NfaFragment fragment = std::move(fragmentStack.top());
+    Fragment fragment = std::move(fragmentStack.top());
     fragmentStack.pop();
     return fragment;
   }
 
-  std::pair<NfaFragment, NfaFragment> MainBuilder::popTwoFragmentsFromStack() {
+  std::pair<Fragment, Fragment> MainBuilder::popTwoFragmentsFromStack() {
     assert(fragmentStack.size() >= 2);
-    NfaFragment fragSecond = std::move(fragmentStack.top());
+    Fragment fragSecond = std::move(fragmentStack.top());
     fragmentStack.pop();
-    NfaFragment fragFirst = std::move(fragmentStack.top());
+    Fragment fragFirst = std::move(fragmentStack.top());
     fragmentStack.pop();
     return { std::move(fragFirst), std::move(fragSecond) };
   }
@@ -127,7 +127,7 @@ namespace regex::nfa {
   }
 
   void MainBuilder::visit(op::ZeroOrOne const* const op) {
-    NfaFragment oldFragment = popOneFragmentFromStack();
+    Fragment oldFragment = popOneFragmentFromStack();
 
     nfa::StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::split);

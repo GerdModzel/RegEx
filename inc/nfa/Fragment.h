@@ -3,12 +3,10 @@
 #include <vector>
 #include <memory>
 
-namespace regex {
+namespace regex::nfa {
 
-  namespace nfa {
-    class FragmentBuilder;
-    struct State;
-  }
+  class FragmentBuilder;
+  struct State;
 
 
   /**
@@ -20,19 +18,19 @@ namespace regex {
    * 
    * Only the FragmentBuilder class can create NfaFragments.
    */
-  struct NfaFragment {
+  struct Fragment {
   private:
-    NfaFragment(nfa::State* startState, std::vector<nfa::State**> nextStates);
+    Fragment(State* startState, std::vector<State**> nextStates);
   public:
-    ~NfaFragment();
-    NfaFragment(const NfaFragment& rhs) = delete;
-    NfaFragment& operator=(const NfaFragment& rhs) = delete;
-    NfaFragment(NfaFragment&& rhs) noexcept;
-    NfaFragment& operator=(NfaFragment&& rhs) noexcept;
+    ~Fragment();
+    Fragment(const Fragment& rhs) = delete;
+    Fragment& operator=(const Fragment& rhs) = delete;
+    Fragment(Fragment&& rhs) noexcept;
+    Fragment& operator=(Fragment&& rhs) noexcept;
     nfa::State* startState;
     std::vector<nfa::State**> nextStates;
   private:
-    friend class nfa::FragmentBuilder;
+    friend class FragmentBuilder;
   };
 
 }

@@ -1,22 +1,22 @@
-#include "NfaFragment.h"
+#include "nfa/Fragment.h"
 
 #include "nfa/State.h"
 
-namespace regex {
+namespace regex::nfa {
 
-  NfaFragment::NfaFragment(nfa::State* startState, std::vector<nfa::State**> nextStates)
+  Fragment::Fragment(State* startState, std::vector<State**> nextStates)
     : startState(startState)
     , nextStates(std::move(nextStates)) {
   }
 
-  NfaFragment::~NfaFragment() = default;
+  Fragment::~Fragment() = default;
 
-  NfaFragment::NfaFragment(NfaFragment&& rhs) noexcept
+  Fragment::Fragment(Fragment&& rhs) noexcept
     : startState(rhs.startState)
     , nextStates(std::move(rhs.nextStates)) {
   }
 
-  NfaFragment& NfaFragment::operator=(NfaFragment&& rhs) noexcept {
+  Fragment& Fragment::operator=(Fragment&& rhs) noexcept {
     if (this != &rhs) {
       startState = rhs.startState;
       nextStates = std::move(rhs.nextStates);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NfaFragment.h"
+#include "nfa/Fragment.h"
 
 namespace regex::nfa {
 
@@ -8,7 +8,7 @@ namespace regex::nfa {
 
   class Complete {
   public:
-    Complete(NfaFragment fragment, std::vector<std::unique_ptr<nfa::State>> stateManager);
+    Complete(Fragment fragment, std::vector<std::unique_ptr<nfa::State>> stateManager);
     ~Complete() = default;
 
     Complete(const Complete& rhs) = delete;
@@ -23,7 +23,7 @@ namespace regex::nfa {
       return fragment.nextStates; 
     }
   private:
-    NfaFragment fragment;
+    Fragment fragment;
     std::vector<std::unique_ptr<nfa::State>> stateManager;
   };
 

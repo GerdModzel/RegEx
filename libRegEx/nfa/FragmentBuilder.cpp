@@ -1,6 +1,6 @@
 #include "nfa/FragmentBuilder.h"
 
-#include "NfaFragment.h"
+#include "nfa/Fragment.h"
 
 namespace regex::nfa {
 
@@ -8,7 +8,7 @@ namespace regex::nfa {
     startState = state;
   }
 
-  void FragmentBuilder::takeOverConnectionsFrom(const NfaFragment& frag) {
+  void FragmentBuilder::takeOverConnectionsFrom(const Fragment& frag) {
     nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end());
   }
 
@@ -21,8 +21,8 @@ namespace regex::nfa {
       nextStates.push_back(&ptr);
   }
 
-  NfaFragment FragmentBuilder::build() {
-    return NfaFragment{ startState, nextStates };
+  Fragment FragmentBuilder::build() {
+    return Fragment{ startState, nextStates };
   }
 
 

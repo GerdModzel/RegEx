@@ -1,6 +1,6 @@
 #include "nfa/StateBuilder.h"
 
-#include "NfaFragment.h"
+#include "nfa/Fragment.h"
 
 namespace regex::nfa {
 
@@ -14,7 +14,7 @@ namespace regex::nfa {
     stateValue = value; 
   }
 
-  void StateBuilder::connectToFragment(NfaFragment& frag) {
+  void StateBuilder::connectToFragment(Fragment& frag) {
     nextStates.push_back(frag.startState); 
   }
 

@@ -2,7 +2,7 @@
 
 #include "nfa/State.h"
 #include "Expression.h"
-#include "NfaFragment.h"
+#include "nfa/Fragment.h"
 #include "nfa/Complete.h"
 #include "op/OperatorVisitor.h"
 
@@ -10,7 +10,7 @@
 
 namespace regex::nfa {
 
-  using FragmentStack = std::stack<NfaFragment>;
+  using FragmentStack = std::stack<Fragment>;
 
   class MainBuilder : public op::OperatorVisitor {
   public:
@@ -27,8 +27,8 @@ namespace regex::nfa {
      * \return An nfa::Complete object representing the complete NFA for the given expression.
     */
     Complete createNfaFragment(const regex::Expression& expr);
-    NfaFragment popOneFragmentFromStack();
-    std::pair<NfaFragment, NfaFragment> popTwoFragmentsFromStack();
+    Fragment popOneFragmentFromStack();
+    std::pair<Fragment, Fragment> popTwoFragmentsFromStack();
 
     /// creates a new NFA fragment for the concatenation operator; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
     void visit(op::Concatenation const* const op) override;
