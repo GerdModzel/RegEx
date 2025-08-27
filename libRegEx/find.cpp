@@ -19,7 +19,7 @@ namespace regex {
     Expression expr = exprBuilder.build(searchString);
 
     nfa::MainBuilder nfaBuilder;
-    NfaComplete nfa = nfaBuilder.createNfaFragment(expr);
+    nfa::Complete nfa = nfaBuilder.createNfaFragment(expr);
 
     return executeSearch(text, &nfa);
   }

@@ -2,7 +2,7 @@
 
 #include "op/Match.h"
 #include "op/Literal.h"
-#include "NfaComplete.h"
+#include "nfa/Complete.h"
 #include "nfa/FragmentBuilder.h"
 #include "nfa/StateBuilder.h"
 
@@ -151,7 +151,7 @@ namespace regex::nfa {
     connectStates(fragmentStack.top().nextStates, newState.get());
   }
 
-  NfaComplete MainBuilder::createNfaFragment(const regex::Expression& expr) {
+  Complete MainBuilder::createNfaFragment(const regex::Expression& expr) {
     reset();
 
     for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
@@ -162,7 +162,7 @@ namespace regex::nfa {
     matchOperator.accept(this);
 
     assert(fragmentStack.size() == 1);
-    NfaComplete nfaComplete{ std::move(fragmentStack.top()), std::move(stateManager) };
+    Complete nfaComplete{ std::move(fragmentStack.top()), std::move(stateManager) };
 
     return nfaComplete;
   }

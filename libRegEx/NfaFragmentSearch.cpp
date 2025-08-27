@@ -1,7 +1,7 @@
 #include "NfaFragmentSearch.h"
 
 #include "nfa/State.h"
-#include "NfaComplete.h"
+#include "nfa/Complete.h"
 
 #include <vector>
 #include <cassert>
@@ -52,7 +52,7 @@ namespace regex {
   *  a match was found and a SearchResult is created. For the next loop, nextStateList becomes the new currentStateList,
   *  and the new nextStateList is cleared except for the start state. The start state is always on the list.
   */
-  std::vector<SearchResult> executeSearch(std::string_view text, NfaComplete* nfa) {
+  std::vector<SearchResult> executeSearch(std::string_view text, nfa::Complete* nfa) {
     std::vector<SearchResult> resultList;
     std::vector <nfa::State* > cStateList, nStateList;
     std::vector<nfa::State*>& currentStateList = cStateList;

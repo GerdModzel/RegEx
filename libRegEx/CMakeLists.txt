@@ -9,11 +9,11 @@ add_library(libRegEx
 	ExpressionBuildFunctions.cpp 
 	NfaFragmentSearch.cpp 
 	NfaFragment.cpp
-	NfaComplete.cpp
 	op/Utils.cpp
 	op/Operator.cpp
 	nfa/MainBuilder.cpp 
 	nfa/State.cpp 
+	nfa/Complete.cpp
 	nfa/FragmentBuilder.cpp
 	nfa/StateBuilder.cpp
 	${HEADER_LIST})

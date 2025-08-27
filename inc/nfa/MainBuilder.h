@@ -3,7 +3,7 @@
 #include "nfa/State.h"
 #include "Expression.h"
 #include "NfaFragment.h"
-#include "NfaComplete.h"
+#include "nfa/Complete.h"
 #include "op/OperatorVisitor.h"
 
 #include <stack>
@@ -24,9 +24,9 @@ namespace regex::nfa {
      * The method is described at https://swtch.com/~rsc/regexp/regexp1.html.
      * 
      * \param expr The regular expression to convert into an NFA fragment.
-     * \return An NfaComplete object representing the complete NFA for the given expression.
+     * \return An nfa::Complete object representing the complete NFA for the given expression.
     */
-    NfaComplete createNfaFragment(const regex::Expression& expr);
+    Complete createNfaFragment(const regex::Expression& expr);
     NfaFragment popOneFragmentFromStack();
     std::pair<NfaFragment, NfaFragment> popTwoFragmentsFromStack();
 
