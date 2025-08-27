@@ -8,15 +8,13 @@
 
 #include <stack>
 
-namespace regex {
-
-
+namespace regex::nfa {
 
   using FragmentStack = std::stack<NfaFragment>;
 
-  class NfaBuilder : public op::OperatorVisitor {
+  class MainBuilder : public op::OperatorVisitor {
   public:
-    NfaBuilder() = default;
+    MainBuilder() = default;
 
     /** 
      * \brief Creates an NFA (Non-deterministic Finite Automaton) fragment from a regular expression.
