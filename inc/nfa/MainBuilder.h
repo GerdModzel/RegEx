@@ -17,13 +17,13 @@ namespace regex::nfa {
     MainBuilder() = default;
 
     /** 
-     * \brief Creates an NFA (Non-deterministic Finite Automaton) fragment from a regular expression.
+     * \brief Creates an NFA (Non-deterministic Finite Automaton) from a regular expression.
      * 
-     * The NFA fragment is built incrementally based on the operators in the expression.
-     * The resulting fragment can be used to search for matches in a given text.
+     * The NFA is built incrementally based on the operators in the expression.
+     * The result can be used to search for matches in a given text.
      * The method is described at https://swtch.com/~rsc/regexp/regexp1.html.
      * 
-     * \param expr The regular expression to convert into an NFA fragment.
+     * \param expr The regular expression to convert into an NFA.
      * \return An nfa::Complete object representing the complete NFA for the given expression.
     */
     Complete createNfaFragment(const regex::Expression& expr);
