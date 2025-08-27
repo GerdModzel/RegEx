@@ -9,15 +9,15 @@
 #include <cassert>
 
 
-namespace {
-
-  void connectStates(std::vector<regex::nfa::State**>& ptrList, regex::nfa::State* state) {
-    for (auto& nextState : ptrList)
-      *nextState = state;
-  }
-}
-
 namespace regex::nfa {
+
+  namespace {
+    void connectStates(std::vector<State**>& ptrList, State* state) {
+      for (auto& nextState : ptrList)
+        *nextState = state;
+    }
+  }
+
 
   void MainBuilder::reset() {
     while (!fragmentStack.empty())
@@ -46,7 +46,7 @@ namespace regex::nfa {
 
     connectStates(olderFragment.nextStates, oldFragment.startState);
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(olderFragment.startState);
     fragBuilder.takeOverConnectionsFrom(oldFragment);
     fragmentStack.push(fragBuilder.build());
@@ -55,13 +55,13 @@ namespace regex::nfa {
   void MainBuilder::visit(op::Alternation const* const op) {
     auto [olderFragment, oldFragment] = popTwoFragmentsFromStack();
 
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(olderFragment);
     stateBuilder.connectToFragment(oldFragment);
     auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
     fragBuilder.takeOverConnectionsFrom(olderFragment);
     fragBuilder.takeOverConnectionsFrom(oldFragment);
@@ -69,24 +69,24 @@ namespace regex::nfa {
   }
 
   void MainBuilder::visit(op::Wildcard const* const op) {
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(std::nullopt);
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
     fragBuilder.setEndStates(newState->nextStates);
     fragmentStack.push(fragBuilder.build());
   }
 
   void MainBuilder::visit(op::Literal const* const op) {
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(op->getValue());
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
     fragBuilder.setEndStates(newState->nextStates);
     fragmentStack.push(fragBuilder.build());
@@ -95,7 +95,7 @@ namespace regex::nfa {
   void MainBuilder::visit(op::ZeroOrMore const* const op) {
     auto oldFragment = popOneFragmentFromStack();
 
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
@@ -103,7 +103,7 @@ namespace regex::nfa {
 
     connectStates(oldFragment.nextStates, newState.get());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
     fragBuilder.takeOverConnection(&newState->nextStates[1]);
     fragmentStack.push(fragBuilder.build());
@@ -112,7 +112,7 @@ namespace regex::nfa {
   void MainBuilder::visit(op::OneOrMore const* const op) {
     auto oldFragment = popOneFragmentFromStack();
 
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
@@ -120,7 +120,7 @@ namespace regex::nfa {
 
     connectStates(oldFragment.nextStates, newState.get());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(oldFragment.startState);
     fragBuilder.takeOverConnection(&newState->nextStates[1]);
     fragmentStack.push(fragBuilder.build());
@@ -129,13 +129,13 @@ namespace regex::nfa {
   void MainBuilder::visit(op::ZeroOrOne const* const op) {
     Fragment oldFragment = popOneFragmentFromStack();
 
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-    nfa::FragmentBuilder fragBuilder;
+    FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
     fragBuilder.takeOverConnection(&newState->nextStates.at(1));
     fragBuilder.takeOverConnection(oldFragment.nextStates.at(0));
@@ -143,7 +143,7 @@ namespace regex::nfa {
   }
 
   void MainBuilder::visit(op::Match const* const op) {
-    nfa::StateBuilder stateBuilder;
+    StateBuilder stateBuilder;
     stateBuilder.setType(State::Type::match);
     stateBuilder.cutOffConnections();
     auto& newState = stateManager.emplace_back(stateBuilder.build());

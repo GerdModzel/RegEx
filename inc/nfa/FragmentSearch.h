@@ -5,11 +5,9 @@
 #include <vector>
 #include <string_view>
 
- namespace regex {
+ namespace regex::nfa {
 
-   namespace nfa {
-    class Complete;
-   }
+  class Complete;
 
   /**
    * \brief Executes a search for matches of the NFA fragment in the given text.
@@ -21,7 +19,7 @@
    * \param fragment The NFA fragment to use for matching.
    * \return A vector of SearchResult objects representing the matches found in the text.
    */
-  std::vector<SearchResult> executeSearch(std::string_view text, nfa::Complete* fragment);
+  std::vector<SearchResult> executeSearch(std::string_view text, Complete* fragment);
 
 }
 

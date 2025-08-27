@@ -8,7 +8,7 @@ namespace regex::nfa {
 
   class Complete {
   public:
-    Complete(Fragment fragment, std::vector<std::unique_ptr<nfa::State>> stateManager);
+    Complete(Fragment fragment, std::vector<std::unique_ptr<State>> stateManager);
     ~Complete() = default;
 
     Complete(const Complete& rhs) = delete;
@@ -16,15 +16,15 @@ namespace regex::nfa {
     Complete(Complete&& rhs) noexcept = default;
     Complete& operator=(Complete&& rhs) noexcept = default;
 
-    nfa::State* getStartState() const {
+    State* getStartState() const {
       return fragment.startState;
     }
-    std::vector<nfa::State**> getNextStates() const {
+    std::vector<State**> getNextStates() const {
       return fragment.nextStates; 
     }
   private:
     Fragment fragment;
-    std::vector<std::unique_ptr<nfa::State>> stateManager;
+    std::vector<std::unique_ptr<State>> stateManager;
   };
 
 }

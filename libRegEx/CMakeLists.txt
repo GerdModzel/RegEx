@@ -7,7 +7,6 @@ add_library(libRegEx
 	calculateHitMask.cpp 
 	ExpressionBuilder.cpp 
 	ExpressionBuildFunctions.cpp 
-	NfaFragmentSearch.cpp 
 	op/Utils.cpp
 	op/Operator.cpp
 	nfa/MainBuilder.cpp 
@@ -16,6 +15,7 @@ add_library(libRegEx
 	nfa/Complete.cpp
 	nfa/FragmentBuilder.cpp
 	nfa/StateBuilder.cpp
+	nfa/FragmentSearch.cpp 
 	${HEADER_LIST})
 
 target_include_directories(libRegEx PUBLIC ../inc)

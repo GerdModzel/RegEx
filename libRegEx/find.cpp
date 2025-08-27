@@ -3,7 +3,7 @@
 #include "nfa/MainBuilder.h"
 #include "ExpressionBuilder.h"
 #include "ExpressionBuildFunctions.h"
-#include "NfaFragmentSearch.h"
+#include "nfa/FragmentSearch.h"
 
 #include <iostream>
 #include <span>
