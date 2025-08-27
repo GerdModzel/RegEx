@@ -29,8 +29,8 @@ public:
   void setStartState(NfaState* state) { startState = state; }
   void takeOverConnectionsFrom(const NfaFragment& frag) { nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end()); }
   void takeOverConnection(NfaState** frag) { nextStates.push_back(frag); }
-  void attachToStateConnections(NfaState* state) { 
-    for (auto& ptr : state->nextStates)
+  void setEndStates(std::vector<NfaState*>& ptrList) {
+    for (auto& ptr : ptrList)
       nextStates.push_back(&ptr);
   }
   void connectToState(NfaState* state) { nextStates.push_back(&state->nextStates[0]); }

@@ -74,7 +74,7 @@ void NfaBuilder::visit(op::Wildcard const* const op) {
 
   FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
-  fragBuilder.attachToStateConnections(newState.get());
+  fragBuilder.setEndStates(newState->nextStates);
   fragmentStack.push(fragBuilder.build());
 }
 
@@ -86,7 +86,7 @@ void NfaBuilder::visit(op::Literal const* const op) {
 
   FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
-  fragBuilder.attachToStateConnections(newState.get());
+  fragBuilder.setEndStates(newState->nextStates);
   fragmentStack.push(fragBuilder.build());
 }
 
