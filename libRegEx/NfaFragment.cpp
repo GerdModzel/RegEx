@@ -1,10 +1,10 @@
 #include "NfaFragment.h"
 
-#include "NfaState.h"
+#include "nfa/State.h"
 
 namespace regex {
 
-  NfaFragment::NfaFragment(NfaState* startState, std::vector<NfaState**> nextStates)
+  NfaFragment::NfaFragment(nfa::State* startState, std::vector<nfa::State**> nextStates)
     : startState(startState)
     , nextStates(std::move(nextStates)) {
   }

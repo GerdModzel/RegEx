@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NfaState.h"
+#include "nfa/State.h"
 #include "Expression.h"
 #include "NfaFragment.h"
 #include "NfaComplete.h"
@@ -50,7 +50,7 @@ namespace regex::nfa {
     void reset();
 
     FragmentStack fragmentStack;
-    std::vector<std::unique_ptr<NfaState>> stateManager;
+    std::vector<std::unique_ptr<State>> stateManager;
   };
 
 }

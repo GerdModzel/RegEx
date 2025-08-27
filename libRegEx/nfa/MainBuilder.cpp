@@ -11,7 +11,7 @@
 
 namespace {
 
-  void connectStates(std::vector<regex::NfaState**>& ptrList, regex::NfaState* state) {
+  void connectStates(std::vector<regex::nfa::State**>& ptrList, regex::nfa::State* state) {
     for (auto& nextState : ptrList)
       *nextState = state;
   }
@@ -56,7 +56,7 @@ namespace regex::nfa {
     auto [olderFragment, oldFragment] = popTwoFragmentsFromStack();
 
     nfa::StateBuilder stateBuilder;
-    stateBuilder.setType(NfaState::Type::split);
+    stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(olderFragment);
     stateBuilder.connectToFragment(oldFragment);
     auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -96,7 +96,7 @@ namespace regex::nfa {
     auto oldFragment = popOneFragmentFromStack();
 
     nfa::StateBuilder stateBuilder;
-    stateBuilder.setType(NfaState::Type::split);
+    stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -113,7 +113,7 @@ namespace regex::nfa {
     auto oldFragment = popOneFragmentFromStack();
 
     nfa::StateBuilder stateBuilder;
-    stateBuilder.setType(NfaState::Type::split);
+    stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -130,7 +130,7 @@ namespace regex::nfa {
     NfaFragment oldFragment = popOneFragmentFromStack();
 
     nfa::StateBuilder stateBuilder;
-    stateBuilder.setType(NfaState::Type::split);
+    stateBuilder.setType(State::Type::split);
     stateBuilder.connectToFragment(oldFragment);
     stateBuilder.createDanglingConnection();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -144,7 +144,7 @@ namespace regex::nfa {
 
   void MainBuilder::visit(op::Match const* const op) {
     nfa::StateBuilder stateBuilder;
-    stateBuilder.setType(NfaState::Type::match);
+    stateBuilder.setType(State::Type::match);
     stateBuilder.cutOffConnections();
     auto& newState = stateManager.emplace_back(stateBuilder.build());
 

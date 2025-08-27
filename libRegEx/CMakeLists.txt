@@ -3,7 +3,6 @@
 add_library(libRegEx 
 	find.cpp 
 	ParseResult.cpp 
-	NfaState.cpp 
 	Expression.cpp 
 	calculateHitMask.cpp 
 	ExpressionBuilder.cpp 
@@ -14,6 +13,7 @@ add_library(libRegEx
 	op/Utils.cpp
 	op/Operator.cpp
 	nfa/MainBuilder.cpp 
+	nfa/State.cpp 
 	nfa/FragmentBuilder.cpp
 	nfa/StateBuilder.cpp
 	${HEADER_LIST})

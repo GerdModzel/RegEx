@@ -1,6 +1,6 @@
 #include "NfaFragmentSearch.h"
 
-#include "NfaState.h"
+#include "nfa/State.h"
 #include "NfaComplete.h"
 
 #include <vector>
@@ -13,12 +13,12 @@ namespace regex {
 
     /* Adds the state to the list if it has not been added yet.
     */
-    void addStateToList(std::vector<NfaState*>& list, NfaState* state, const int counter)
+    void addStateToList(std::vector<nfa::State*>& list, nfa::State* state, const int counter)
     {
       assert(state != nullptr);
       if (state->lastList == counter)
         return; // already added to the list
-      if (state->type == NfaState::Type::split) {
+      if (state->type == nfa::State::Type::split) {
         for (const auto& nextState : state->nextStates)
           addStateToList(list, nextState, counter);
         return;
@@ -29,18 +29,18 @@ namespace regex {
 
     /* Processes the current state list and checks if the character matches any of the NfaStates.
     */
-    void step(const std::vector<NfaState*>& currentStateList, std::vector<NfaState*>& nextStateList, char ch, const int counter) {
+    void step(const std::vector<nfa::State*>& currentStateList, std::vector<nfa::State*>& nextStateList, char ch, const int counter) {
       for (const auto currentState : currentStateList) {
-        if (currentState->type == NfaState::Type::ch && currentState->ch.value_or(ch) == ch) { //  wildcard always matches (wildcard has no value)
+        if (currentState->type == nfa::State::Type::ch && currentState->ch.value_or(ch) == ch) { //  wildcard always matches (wildcard has no value)
           assert(currentState->nextStates.size() == 1);
           addStateToList(nextStateList, currentState->nextStates[0], counter);
         }
       }
     }
 
-    void extractMatches(const std::vector<NfaState*>& stateList, std::vector<SearchResult>& matchList, const int counter) {
+    void extractMatches(const std::vector<nfa::State*>& stateList, std::vector<SearchResult>& matchList, const int counter) {
       for (const auto& state : stateList) {
-        if (state->type == NfaState::Type::match)
+        if (state->type == nfa::State::Type::match)
           matchList.emplace_back(static_cast<size_t>(counter), 1u);
       }
     }
@@ -54,9 +54,9 @@ namespace regex {
   */
   std::vector<SearchResult> executeSearch(std::string_view text, NfaComplete* nfa) {
     std::vector<SearchResult> resultList;
-    std::vector<NfaState*> cStateList, nStateList;
-    std::vector<NfaState*>& currentStateList = cStateList;
-    std::vector<NfaState*>& nextStateList = nStateList;
+    std::vector <nfa::State* > cStateList, nStateList;
+    std::vector<nfa::State*>& currentStateList = cStateList;
+    std::vector<nfa::State*>& nextStateList = nStateList;
     int characterCounter = 0;
 
     for (const auto ch : text) {

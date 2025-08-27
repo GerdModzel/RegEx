@@ -4,13 +4,13 @@
 
 namespace regex::nfa {
 
-  void StateBuilder::setType(NfaState::Type type) {
+  void StateBuilder::setType(State::Type type) {
     stateType = type;
     stateValue = std::nullopt;
   }
 
   void StateBuilder::setType(std::optional<char> value) {
-    stateType = NfaState::Type::ch;
+    stateType = State::Type::ch;
     stateValue = value; 
   }
 
@@ -26,8 +26,8 @@ namespace regex::nfa {
     nextStates = {}; 
   }
 
-  std::unique_ptr<NfaState> StateBuilder::build() {
-    return std::make_unique<NfaState>(stateType, stateValue, nextStates); 
+  std::unique_ptr<State> StateBuilder::build() {
+    return std::make_unique<State>(stateType, stateValue, nextStates); 
   }
 
 }

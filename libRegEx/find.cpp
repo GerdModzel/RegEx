@@ -1,6 +1,5 @@
 ﻿#include "find.h"
 
-#include "NfaState.h"
 #include "nfa/MainBuilder.h"
 #include "ExpressionBuilder.h"
 #include "ExpressionBuildFunctions.h"

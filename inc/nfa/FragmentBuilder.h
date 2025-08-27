@@ -4,21 +4,22 @@
 
 namespace regex {
 
-  struct NfaState;
   struct NfaFragment;
 
   namespace nfa {
 
+    struct State;
+
     class FragmentBuilder {
     public:
-      void setStartState(NfaState* state);
+      void setStartState(State* state);
       void takeOverConnectionsFrom(const NfaFragment& frag);
-      void takeOverConnection(NfaState** frag);
-      void setEndStates(std::vector<NfaState*>& ptrList);
+      void takeOverConnection(State** frag);
+      void setEndStates(std::vector<State*>& ptrList);
       NfaFragment build();
     private:
-      NfaState* startState;
-      std::vector<NfaState**> nextStates;
+      State* startState;
+      std::vector<State**> nextStates;
     };
 
   }

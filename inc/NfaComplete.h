@@ -4,11 +4,13 @@
 
 namespace regex {
 
-  struct NfaState;
+  namespace nfa {
+    struct State;
+  }
 
   class NfaComplete {
   public:
-    NfaComplete(NfaFragment fragment, std::vector<std::unique_ptr<NfaState>> stateManager);
+    NfaComplete(NfaFragment fragment, std::vector<std::unique_ptr<nfa::State>> stateManager);
     ~NfaComplete() = default;
 
     NfaComplete(const NfaComplete& rhs) = delete;
@@ -16,15 +18,15 @@ namespace regex {
     NfaComplete(NfaComplete&& rhs) noexcept = default;
     NfaComplete& operator=(NfaComplete&& rhs) noexcept = default;
 
-    NfaState* getStartState() const {
+    nfa::State* getStartState() const {
       return fragment.startState;
     }
-    std::vector<NfaState**> getNextStates() const {
+    std::vector<nfa::State**> getNextStates() const {
       return fragment.nextStates; 
     }
   private:
     NfaFragment fragment;
-    std::vector<std::unique_ptr<NfaState>> stateManager;
+    std::vector<std::unique_ptr<nfa::State>> stateManager;
   };
 
 }

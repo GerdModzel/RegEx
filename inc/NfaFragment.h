@@ -7,9 +7,9 @@ namespace regex {
 
   namespace nfa {
     class FragmentBuilder;
+    struct State;
   }
 
-  struct NfaState;
 
   /**
    * \brief Represents a fragment of an NFA (Non-deterministic Finite Automaton).
@@ -22,15 +22,15 @@ namespace regex {
    */
   struct NfaFragment {
   private:
-    NfaFragment(NfaState* startState, std::vector<NfaState**> nextStates);
+    NfaFragment(nfa::State* startState, std::vector<nfa::State**> nextStates);
   public:
     ~NfaFragment();
     NfaFragment(const NfaFragment& rhs) = delete;
     NfaFragment& operator=(const NfaFragment& rhs) = delete;
     NfaFragment(NfaFragment&& rhs) noexcept;
     NfaFragment& operator=(NfaFragment&& rhs) noexcept;
-   NfaState* startState;
-    std::vector<NfaState**> nextStates;
+    nfa::State* startState;
+    std::vector<nfa::State**> nextStates;
   private:
     friend class nfa::FragmentBuilder;
   };

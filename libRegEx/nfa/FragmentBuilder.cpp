@@ -4,7 +4,7 @@
 
 namespace regex::nfa {
 
-  void FragmentBuilder::setStartState(NfaState* state) {
+  void FragmentBuilder::setStartState(State* state) {
     startState = state;
   }
 
@@ -12,11 +12,11 @@ namespace regex::nfa {
     nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end());
   }
 
-  void FragmentBuilder::takeOverConnection(NfaState** frag) {
+  void FragmentBuilder::takeOverConnection(State** frag) {
     nextStates.push_back(frag);
   }
 
-  void FragmentBuilder::setEndStates(std::vector<NfaState*>& ptrList) {
+  void FragmentBuilder::setEndStates(std::vector<State*>& ptrList) {
     for (auto& ptr : ptrList)
       nextStates.push_back(&ptr);
   }

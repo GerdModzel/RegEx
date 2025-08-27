@@ -3,17 +3,17 @@
 #include <optional>
 #include <vector>
 
-namespace regex {
+namespace regex::nfa {
 
-  struct NfaState
+  struct State
   {
     enum class Type {ch, split, match};
 
-    NfaState(Type type, std::optional<char> ch, std::vector<NfaState*> nextStates);
+    State(Type type, std::optional<char> ch, std::vector<State*> nextStates);
     Type type;
     // std::nullopt: type != ch or character is wildcard character and matches any character
     std::optional<char> ch;
-    std::vector<NfaState*> nextStates;
+    std::vector<State*> nextStates;
     int lastList;
   };
 
