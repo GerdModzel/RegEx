@@ -4,6 +4,7 @@
 #include "op/Literal.h"
 #include "NfaComplete.h"
 #include "nfa/FragmentBuilder.h"
+#include "nfa/StateBuilder.h"
 
 #include <cassert>
 
@@ -54,7 +55,7 @@ void NfaBuilder::visit(op::Concatenation const* const op) {
 void NfaBuilder::visit(op::Alternation const* const op) {
   auto [olderFragment, oldFragment] = popTwoFragmentsFromStack();
 
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
   stateBuilder.connectToFragment(olderFragment);
   stateBuilder.connectToFragment(oldFragment);
@@ -68,7 +69,7 @@ void NfaBuilder::visit(op::Alternation const* const op) {
 }
 
 void NfaBuilder::visit(op::Wildcard const* const op) {
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(std::nullopt);
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -80,7 +81,7 @@ void NfaBuilder::visit(op::Wildcard const* const op) {
 }
 
 void NfaBuilder::visit(op::Literal const* const op) {
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(op->getValue());
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
@@ -94,7 +95,7 @@ void NfaBuilder::visit(op::Literal const* const op) {
 void NfaBuilder::visit(op::ZeroOrMore const* const op) {
   auto oldFragment = popOneFragmentFromStack();
 
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
   stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
@@ -111,7 +112,7 @@ void NfaBuilder::visit(op::ZeroOrMore const* const op) {
 void NfaBuilder::visit(op::OneOrMore const* const op) {
   auto oldFragment = popOneFragmentFromStack();
 
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
   stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
@@ -128,7 +129,7 @@ void NfaBuilder::visit(op::OneOrMore const* const op) {
 void NfaBuilder::visit(op::ZeroOrOne const* const op) {
   NfaFragment oldFragment = popOneFragmentFromStack();
 
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::split);
   stateBuilder.connectToFragment(oldFragment);
   stateBuilder.createDanglingConnection();
@@ -142,7 +143,7 @@ void NfaBuilder::visit(op::ZeroOrOne const* const op) {
 }
 
 void NfaBuilder::visit(op::Match const* const op) {
-  StateBuilder stateBuilder;
+  nfa::StateBuilder stateBuilder;
   stateBuilder.setType(NfaState::Type::match);
   stateBuilder.cutOffConnections();
   auto& newState = stateManager.emplace_back(stateBuilder.build());

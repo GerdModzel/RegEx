@@ -10,20 +10,6 @@
 
 namespace regex {
 
-class StateBuilder {
-public:
-  void setType(NfaState::Type type) { stateType = type; stateValue = std::nullopt; }
-  void setType(std::optional<char> value) { stateType = NfaState::Type::ch; stateValue = value; }
-  void connectToFragment(NfaFragment& frag) { nextStates.push_back(frag.startState); }
-  void createDanglingConnection() { nextStates.push_back(nullptr); }
-  void cutOffConnections() { nextStates = {}; }
-  std::unique_ptr<NfaState> build() { return std::make_unique<NfaState>(stateType, stateValue, nextStates); }
-private:
-  NfaState::Type stateType;
-  std::optional<char> stateValue = std::nullopt;
-  std::vector<NfaState*> nextStates;
-};
-
 
 
   using FragmentStack = std::stack<NfaFragment>;
