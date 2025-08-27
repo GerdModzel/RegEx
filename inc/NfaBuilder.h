@@ -24,22 +24,6 @@ private:
   std::vector<NfaState*> nextStates;
 };
 
-class FragmentBuilder {
-public:
-  void setStartState(NfaState* state) { startState = state; }
-  void takeOverConnectionsFrom(const NfaFragment& frag) { nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end()); }
-  void takeOverConnection(NfaState** frag) { nextStates.push_back(frag); }
-  void setEndStates(std::vector<NfaState*>& ptrList) {
-    for (auto& ptr : ptrList)
-      nextStates.push_back(&ptr);
-  }
-  void connectToState(NfaState* state) { nextStates.push_back(&state->nextStates[0]); }
-  NfaFragment build() { return NfaFragment{startState, nextStates}; }
-private:
-  NfaState* startState;
-  std::vector<NfaState**> nextStates;
-};
-
 
 
   using FragmentStack = std::stack<NfaFragment>;

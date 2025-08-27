@@ -14,6 +14,7 @@ add_library(libRegEx
 	NfaComplete.cpp
 	op/Utils.cpp
 	op/Operator.cpp
+	nfa/FragmentBuilder.cpp
 	${HEADER_LIST})
 
 target_include_directories(libRegEx PUBLIC ../inc)

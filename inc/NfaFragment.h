@@ -5,6 +5,10 @@
 
 namespace regex {
 
+  namespace nfa {
+    class FragmentBuilder;
+  }
+
   struct NfaState;
 
   /**
@@ -28,7 +32,7 @@ namespace regex {
    NfaState* startState;
     std::vector<NfaState**> nextStates;
   private:
-    friend class FragmentBuilder;
+    friend class nfa::FragmentBuilder;
   };
 
 }

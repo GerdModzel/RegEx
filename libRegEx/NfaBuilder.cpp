@@ -3,6 +3,7 @@
 #include "op/Match.h"
 #include "op/Literal.h"
 #include "NfaComplete.h"
+#include "nfa/FragmentBuilder.h"
 
 #include <cassert>
 
@@ -44,7 +45,7 @@ void NfaBuilder::visit(op::Concatenation const* const op) {
 
   connectStates(olderFragment.nextStates, oldFragment.startState);
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(olderFragment.startState);
   fragBuilder.takeOverConnectionsFrom(oldFragment);
   fragmentStack.push(fragBuilder.build());
@@ -59,7 +60,7 @@ void NfaBuilder::visit(op::Alternation const* const op) {
   stateBuilder.connectToFragment(oldFragment);
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.takeOverConnectionsFrom(olderFragment);
   fragBuilder.takeOverConnectionsFrom(oldFragment);
@@ -72,7 +73,7 @@ void NfaBuilder::visit(op::Wildcard const* const op) {
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.setEndStates(newState->nextStates);
   fragmentStack.push(fragBuilder.build());
@@ -84,7 +85,7 @@ void NfaBuilder::visit(op::Literal const* const op) {
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.setEndStates(newState->nextStates);
   fragmentStack.push(fragBuilder.build());
@@ -101,7 +102,7 @@ void NfaBuilder::visit(op::ZeroOrMore const* const op) {
 
   connectStates(oldFragment.nextStates, newState.get());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.takeOverConnection(&newState->nextStates[1]);
   fragmentStack.push(fragBuilder.build());
@@ -118,7 +119,7 @@ void NfaBuilder::visit(op::OneOrMore const* const op) {
 
   connectStates(oldFragment.nextStates, newState.get());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(oldFragment.startState);
   fragBuilder.takeOverConnection(&newState->nextStates[1]);
   fragmentStack.push(fragBuilder.build());
@@ -133,7 +134,7 @@ void NfaBuilder::visit(op::ZeroOrOne const* const op) {
   stateBuilder.createDanglingConnection();
   auto& newState = stateManager.emplace_back(stateBuilder.build());
 
-  FragmentBuilder fragBuilder;
+  nfa::FragmentBuilder fragBuilder;
   fragBuilder.setStartState(newState.get());
   fragBuilder.takeOverConnection(&newState->nextStates[1]);
   fragBuilder.takeOverConnection(oldFragment.nextStates[0]);
