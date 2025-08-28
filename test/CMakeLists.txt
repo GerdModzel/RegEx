@@ -1,3 +1,5 @@
+file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../test/inc/*.h")
+
 enable_testing()
 
 include(FetchContent)
@@ -19,7 +21,8 @@ add_executable(testLibRegEx
                src/testOperator.cpp 
                src/testExpressionBuildFunctions.cpp 
                src/testParseResult.cpp 
-               src/testNfaBuilder.cpp)
+               src/testNfaBuilder.cpp
+	           ${HEADER_LIST})
 
 # I'm using C++20 in the test
 target_compile_features(testLibRegEx PRIVATE cxx_std_20)
@@ -31,3 +34,12 @@ target_include_directories(testLibRegEx PRIVATE ../inc inc)
 
 include(GoogleTest)
 gtest_discover_tests(testLibRegEx)
+
+# IDEs should put the headers in a nice place
+source_group(
+  TREE "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+  PREFIX "Header Files"
+  FILES ${HEADER_LIST})
+
+
+
