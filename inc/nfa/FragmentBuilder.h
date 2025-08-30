@@ -10,11 +10,16 @@ namespace regex {
     struct State;
     struct Fragment;
 
+    /// A builder class to help construct NFA fragments.
+    /// Only this class can create Fragment instances.
     class FragmentBuilder {
     public:
       void setStartState(State* state);
-      void takeOverConnectionsFrom(const Fragment& frag);
-      void takeOverConnection(State** frag);
+      // The double pointers that lead to the next states are copied to the new fragment.
+      void attachToConnections(const Fragment& frag);
+      /// The double pointer to the next state is copied to the new fragment so the destination state can be set later.
+      /** The pointer must be dangling (i.e. pointing to nullptr), else an existing connection would be cut. */
+      void attachToConnection(State** nextState);
       void setEndStates(std::vector<State*>& ptrList);
       Fragment build();
     private:

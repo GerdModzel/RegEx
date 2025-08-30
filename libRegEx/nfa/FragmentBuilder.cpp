@@ -2,18 +2,22 @@
 
 #include "nfa/Fragment.h"
 
+#include <cassert>
+
 namespace regex::nfa {
 
   void FragmentBuilder::setStartState(State* state) {
     startState = state;
   }
 
-  void FragmentBuilder::takeOverConnectionsFrom(const Fragment& frag) {
-    nextStates.insert(nextStates.end(), frag.nextStates.begin(), frag.nextStates.end());
+  void FragmentBuilder::attachToConnections(const Fragment& frag) {
+    for (auto& nextState : frag.nextStates)
+      attachToConnection(nextState);
   }
 
-  void FragmentBuilder::takeOverConnection(State** frag) {
-    nextStates.push_back(frag);
+  void FragmentBuilder::attachToConnection(State** nextState) {
+    assert(*nextState == nullptr);
+    nextStates.push_back(nextState);
   }
 
   void FragmentBuilder::setEndStates(std::vector<State*>& ptrList) {

@@ -48,7 +48,7 @@ namespace regex::nfa {
 
     FragmentBuilder fragBuilder;
     fragBuilder.setStartState(olderFragment.startState);
-    fragBuilder.takeOverConnectionsFrom(oldFragment);
+    fragBuilder.attachToConnections(oldFragment);
     fragmentStack.push(fragBuilder.build());
   }
 
@@ -63,8 +63,8 @@ namespace regex::nfa {
 
     FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
-    fragBuilder.takeOverConnectionsFrom(olderFragment);
-    fragBuilder.takeOverConnectionsFrom(oldFragment);
+    fragBuilder.attachToConnections(olderFragment);
+    fragBuilder.attachToConnections(oldFragment);
     fragmentStack.push(fragBuilder.build());
   }
 
@@ -105,7 +105,7 @@ namespace regex::nfa {
 
     FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
-    fragBuilder.takeOverConnection(&newState->nextStates[1]);
+    fragBuilder.attachToConnection(&newState->nextStates[1]);
     fragmentStack.push(fragBuilder.build());
   }
 
@@ -122,7 +122,7 @@ namespace regex::nfa {
 
     FragmentBuilder fragBuilder;
     fragBuilder.setStartState(oldFragment.startState);
-    fragBuilder.takeOverConnection(&newState->nextStates[1]);
+    fragBuilder.attachToConnection(&newState->nextStates[1]);
     fragmentStack.push(fragBuilder.build());
   }
 
@@ -137,8 +137,8 @@ namespace regex::nfa {
 
     FragmentBuilder fragBuilder;
     fragBuilder.setStartState(newState.get());
-    fragBuilder.takeOverConnection(&newState->nextStates.at(1));
-    fragBuilder.takeOverConnection(oldFragment.nextStates.at(0));
+    fragBuilder.attachToConnection(&newState->nextStates.at(1));
+    fragBuilder.attachToConnection(oldFragment.nextStates.at(0));
     fragmentStack.push(fragBuilder.build());
   }
 
