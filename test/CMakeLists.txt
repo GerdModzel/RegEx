@@ -21,6 +21,7 @@ add_executable(testLibRegEx
                src/testOperator.cpp 
                src/testExpressionBuildFunctions.cpp 
                src/testParseResult.cpp 
+               src/NfaBuilderForTest.cpp
                src/testNfaBuilder.cpp
 	           ${HEADER_LIST})
 

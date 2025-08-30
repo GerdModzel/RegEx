@@ -44,7 +44,7 @@ namespace regex::nfa {
     void visit(op::ZeroOrMore const* const op) override;
     /// creates a new NFA fragment that represents a successful match; for details, see https://swtch.com/~rsc/regexp/regexp1.html.
     void visit(op::Match const* const op) override;
-  private:
+  protected:
     Fragment popOneFragmentFromStack();
     std::pair<Fragment, Fragment> popTwoFragmentsFromStack();
 
