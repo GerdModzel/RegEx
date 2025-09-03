@@ -183,3 +183,43 @@ TEST(NfaBuilder, ZeroOrMoreFragment) {
   ASSERT_TRUE(fragmentAnalyzer.nConnections() == 1);
   ASSERT_TRUE(fragmentAnalyzer.firstConnectionLeadsTo(splitState->nextStates.at(1)));
 }
+
+TEST(NfaBuilder, OneOrMoreFragment) {
+  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), OneOrMore());
+
+  const size_t expectedStateCount = 2;
+  ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
+  auto [splitState, literalState] = builder.getTheMostRecentStates<expectedStateCount>();
+
+  StateAnalyzer stateAnalyzer(splitState);
+  ASSERT_TRUE(stateAnalyzer.isType(State::Type::split));
+  ASSERT_TRUE(stateAnalyzer.firstConnectionLeadsTo(literalState));
+  ASSERT_TRUE(stateAnalyzer.secondConnectionIsDangling());
+
+  ASSERT_EQ(builder.getFragmentStackSize(), 1);
+  FragmentAnalyzer fragmentAnalyzer{ builder.popOneFragmentFromStack() };
+  ASSERT_TRUE(fragmentAnalyzer.isStartState(literalState));
+  ASSERT_TRUE(fragmentAnalyzer.nConnections() == 1);
+  ASSERT_TRUE(fragmentAnalyzer.firstConnectionLeadsTo(splitState->nextStates.at(1)));
+}
+
+TEST(NfaBuilder, ZeroOrOneFragment) {
+  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), ZeroOrOne());
+
+  const size_t expectedStateCount = 2;
+  ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
+  auto [splitState, literalState] = builder.getTheMostRecentStates<expectedStateCount>();
+
+  StateAnalyzer stateAnalyzer(splitState);
+  ASSERT_TRUE(stateAnalyzer.isType(State::Type::split));
+  ASSERT_TRUE(stateAnalyzer.firstConnectionLeadsTo(literalState));
+  ASSERT_TRUE(stateAnalyzer.secondConnectionIsDangling());
+
+  ASSERT_EQ(builder.getFragmentStackSize(), 1);
+  FragmentAnalyzer fragmentAnalyzer{ builder.popOneFragmentFromStack() };
+  ASSERT_TRUE(fragmentAnalyzer.isStartState(splitState));
+  ASSERT_TRUE(fragmentAnalyzer.nConnections() == 2);
+  ASSERT_TRUE(fragmentAnalyzer.secondConnectionLeadsTo(splitState->nextStates.at(1)));
+  ASSERT_TRUE(fragmentAnalyzer.firstConnectionLeadsTo(literalState->nextStates.at(0)));
+}
+
