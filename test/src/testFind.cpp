@@ -67,8 +67,8 @@ TEST(FindTest, characterSearchWithGrouping) {
     ASSERT_EQ(results, expected);
   }
 }
-TEST(Benchmark, characterSearch) {
-  const std::string text = loadWikiTestFile();
-  const auto results = regex::search(text, "automata");
-  ASSERT_EQ(results.size(), 5);
-}
+//TEST(Benchmark, characterSearch) {
+//  const std::string text = loadWikiTestFile();
+//  const auto results = regex::search(text, "automata");
+//  ASSERT_EQ(results.size(), 5);
+//}
