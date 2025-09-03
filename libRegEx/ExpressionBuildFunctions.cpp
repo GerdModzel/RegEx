@@ -132,9 +132,6 @@ namespace regex {
 
   namespace {
     void mergeElements(std::vector<op::DoubleVector::iterator> elements) {
-      if (elements.size() < 2)
-        throw std::invalid_argument("At least two elements are required to merge");
-
       op::Vector& elementToFill = *elements.front();
 
       for (auto it = elements.begin() + 1; it != elements.end(); ++it) {
