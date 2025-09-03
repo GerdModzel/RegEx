@@ -14,8 +14,8 @@ public:
   FragmentAnalyzer(Fragment nfa)
     : nfa(std::move(nfa)) {
   }
-  bool isNConnections(const size_t size) const {
-    return nfa.nextStates.size() == size;
+  size_t nConnections() const {
+    return nfa.nextStates.size();
   }
   bool isStartState(State const * const state) const {
     return state == nfa.startState;
@@ -35,14 +35,6 @@ public:
   }
   bool secondConnectionLeadsTo(State const * const state) const {
     return nfa.nextStates.size() >= 2 && *nfa.nextStates.at(1) == state;
-  }
-
-  bool sharesConnectionWith(State const * const state) const {
-    for (const auto& nextState : nfa.nextStates) {
-      if (std::ranges::find(state->nextStates, *nextState) != state->nextStates.end())
-        return true;
-    }
-    return false;
   }
 
 private:
@@ -168,9 +160,9 @@ TEST(NfaBuilder, AlternationFragment) {
   FragmentAnalyzer fragmentAnalyzer(builder.popOneFragmentFromStack());
 
   ASSERT_TRUE(fragmentAnalyzer.isStartState(splitState));
-  ASSERT_TRUE(fragmentAnalyzer.isNConnections(2));
-  ASSERT_TRUE(fragmentAnalyzer.sharesConnectionWith(literalState0));
-  ASSERT_TRUE(fragmentAnalyzer.sharesConnectionWith(literalState1));
+  ASSERT_TRUE(fragmentAnalyzer.nConnections() == 2);
+  ASSERT_TRUE(fragmentAnalyzer.firstConnectionLeadsTo(literalState0->nextStates.at(0)));
+  ASSERT_TRUE(fragmentAnalyzer.secondConnectionLeadsTo(literalState1->nextStates.at(0)));
 }
 
 TEST(NfaBuilder, ZeroOrMoreFragment) {
@@ -188,6 +180,6 @@ TEST(NfaBuilder, ZeroOrMoreFragment) {
   ASSERT_EQ(builder.getFragmentStackSize(), 1);
   FragmentAnalyzer fragmentAnalyzer{ builder.popOneFragmentFromStack() };
   ASSERT_TRUE(fragmentAnalyzer.isStartState(splitState));
-  ASSERT_TRUE(fragmentAnalyzer.isNConnections(1));
+  ASSERT_TRUE(fragmentAnalyzer.nConnections() == 1);
   ASSERT_TRUE(fragmentAnalyzer.firstConnectionLeadsTo(splitState->nextStates.at(1)));
 }
