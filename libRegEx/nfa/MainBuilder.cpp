@@ -19,9 +19,9 @@ namespace regex::nfa {
   }
 
 
-  void MainBuilder::reset() {
-    while (!fragmentStack.empty())
-      fragmentStack.pop();
+  void MainBuilder::clear() {
+    FragmentStack emptyStack;
+    fragmentStack.swap(emptyStack);
     stateManager.clear();
   }
 
@@ -152,7 +152,7 @@ namespace regex::nfa {
   }
 
   Complete MainBuilder::createNfaFragment(const regex::Expression& expr) {
-    reset();
+    clear();
 
     for (auto cit = expr.cbegin(); cit != expr.cend(); ++cit) {
       regex::op::Operator* op = cit->get();

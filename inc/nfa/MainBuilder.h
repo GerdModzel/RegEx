@@ -48,7 +48,7 @@ namespace regex::nfa {
     Fragment popOneFragmentFromStack();
     std::pair<Fragment, Fragment> popTwoFragmentsFromStack();
 
-   void reset();
+   void clear();
 
     FragmentStack fragmentStack;
     std::vector<std::unique_ptr<State>> stateManager;
