@@ -11,17 +11,4 @@ namespace regex::nfa {
 
   Fragment::~Fragment() = default;
 
-  Fragment::Fragment(Fragment&& rhs) noexcept
-    : startState(rhs.startState)
-    , nextStates(std::move(rhs.nextStates)) {
-  }
-
-  Fragment& Fragment::operator=(Fragment&& rhs) noexcept {
-    if (this != &rhs) {
-      startState = rhs.startState;
-      nextStates = std::move(rhs.nextStates);
-    }
-    return *this;
-  }
-
 }

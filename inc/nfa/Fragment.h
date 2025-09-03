@@ -25,8 +25,8 @@ namespace regex::nfa {
     ~Fragment();
     Fragment(const Fragment& rhs) = delete;
     Fragment& operator=(const Fragment& rhs) = delete;
-    Fragment(Fragment&& rhs) noexcept;
-    Fragment& operator=(Fragment&& rhs) noexcept;
+    Fragment(Fragment&& rhs) noexcept = default;
+    Fragment& operator=(Fragment&& rhs) noexcept = default;
     State* startState;
     std::vector<State**> nextStates;
   private:
