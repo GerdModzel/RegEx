@@ -15,7 +15,6 @@ namespace regex::op {
 
 
   std::unique_ptr<Operator> convertCharToOperator(char ch) {
-    std::unique_ptr<Operator> result{ nullptr };
     switch (ch) {
     case '.': return std::make_unique<Wildcard>();
     case '+': return std::make_unique<OneOrMore>();
