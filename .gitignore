@@ -1,5 +1,6 @@
 build/
 doxygen/
+CoverageReport*/
 .vs
 CMakeFiles
 .aider*
