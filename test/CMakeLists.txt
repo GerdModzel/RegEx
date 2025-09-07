@@ -23,6 +23,7 @@ add_executable(testLibRegEx
                src/testParseResult.cpp 
                src/NfaBuilderForTest.cpp
                src/testNfaBuilder.cpp
+               src/testFragmentSearch.cpp
 	           ${HEADER_LIST})
 
 # I'm using C++20 in the test

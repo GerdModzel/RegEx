@@ -47,12 +47,18 @@ namespace regex::nfa {
 
   } // anonymous namespace
 
-  /* When a character is processed, a check is made whether it matches any of the NfaStates in currentStateList.
+
+
+   std::vector<SearchResult> executeSearch(std::string_view text, Complete* nfa) {
+    return executeSearch(text, nfa->getStartState());
+  }
+
+ /* When a character is processed, a check is made whether it matches any of the NfaStates in currentStateList.
   *  If it does, the state's next states are added to nextStateList. If any of the next states is a match state,
   *  a match was found and a SearchResult is created. For the next loop, nextStateList becomes the new currentStateList,
   *  and the new nextStateList is cleared except for the start state. The start state is always on the list.
   */
-  std::vector<SearchResult> executeSearch(std::string_view text, Complete* nfa) {
+  std::vector<SearchResult> executeSearch(std::string_view text, State* startState) {
     std::vector<SearchResult> resultList;
     std::vector<State*> cStateList, nStateList;
     std::vector<State*>& currentStateList = cStateList;
@@ -62,7 +68,7 @@ namespace regex::nfa {
     for (const auto ch : text) {
       currentStateList.swap(nextStateList);
       nextStateList.clear();
-      addStateToList(currentStateList, nfa->getStartState(), characterCounter);
+      addStateToList(currentStateList, startState, characterCounter);
       step(currentStateList, nextStateList, ch, characterCounter);
       extractMatches(nextStateList, resultList, characterCounter);
       ++characterCounter;
