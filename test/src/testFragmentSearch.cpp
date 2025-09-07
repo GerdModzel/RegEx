@@ -57,10 +57,10 @@ namespace {
     std::array<std::unique_ptr<State>, size> states;
 
     ((states[ints] = createState(std::get<ints>(tuple), nullptr)), ...);
-    ([&] {
-      if (ints + 1 < size)
-        states[ints]->nextStates.push_back(states[ints + 1].get());
-      } (), ...);
+    ([&states](const auto& number) {
+      if (number + 1 < size)
+        states[number]->nextStates.push_back(states[number + 1].get());
+      }(ints), ...);
 
     return states;
   }
