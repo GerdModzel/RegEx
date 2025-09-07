@@ -4,26 +4,35 @@
 
 namespace regex::nfa {
 
-  void StateBuilder::setType(State::Type type) {
+  StateBuilder& StateBuilder::setType(State::Type type) {
     stateType = type;
     stateValue = std::nullopt;
+    return *this;
   }
 
-  void StateBuilder::setType(std::optional<char> value) {
+  StateBuilder& StateBuilder::setType(std::optional<char> value) {
     stateType = State::Type::ch;
     stateValue = value; 
+    return *this;
   }
 
-  void StateBuilder::connectToFragment(Fragment& frag) {
-    nextStates.push_back(frag.startState); 
+  StateBuilder& StateBuilder::connectToState(State* state) {
+    nextStates.push_back(state); 
+    return *this;
   }
 
-  void StateBuilder::createDanglingConnection() {
+  StateBuilder& StateBuilder::connectToFragment(Fragment& frag) {
+    return connectToState(frag.startState);
+  }
+
+  StateBuilder& StateBuilder::createDanglingConnection() {
     nextStates.push_back(nullptr); 
+    return *this;
   }
 
-  void StateBuilder::cutOffConnections() {
+  StateBuilder& StateBuilder::cutOffConnections() {
     nextStates = {}; 
+    return *this;
   }
 
   std::unique_ptr<State> StateBuilder::build() {

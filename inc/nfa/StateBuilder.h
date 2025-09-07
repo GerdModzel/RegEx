@@ -15,11 +15,12 @@ namespace regex {
 
 class StateBuilder {
 public:
-  void setType(State::Type type);
-  void setType(std::optional<char> value);
-  void connectToFragment(Fragment& frag);
-  void createDanglingConnection();
-  void cutOffConnections();
+  StateBuilder& setType(State::Type type);
+  StateBuilder& setType(std::optional<char> value);
+  StateBuilder& connectToState(State* state);
+  StateBuilder& connectToFragment(Fragment& frag);
+  StateBuilder& createDanglingConnection();
+  StateBuilder& cutOffConnections();
   std::unique_ptr<State> build();
 private:
   State::Type stateType;

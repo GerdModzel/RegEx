@@ -6,23 +6,27 @@
 
 namespace regex::nfa {
 
-  void FragmentBuilder::setStartState(State* state) {
+  FragmentBuilder& FragmentBuilder::setStartState(State* state) {
     startState = state;
+    return *this;
   }
 
-  void FragmentBuilder::attachToConnections(const Fragment& frag) {
+  FragmentBuilder& FragmentBuilder::attachToConnections(const Fragment& frag) {
     for (auto& nextState : frag.nextStates)
       attachToConnection(nextState);
+    return *this;
   }
 
-  void FragmentBuilder::attachToConnection(State** nextState) {
+  FragmentBuilder& FragmentBuilder::attachToConnection(State** nextState) {
     assert(*nextState == nullptr);
     nextStates.push_back(nextState);
+    return *this;
   }
 
-  void FragmentBuilder::setEndStates(std::vector<State*>& ptrList) {
+  FragmentBuilder& FragmentBuilder::setEndStates(std::vector<State*>& ptrList) {
     for (auto& ptr : ptrList)
       nextStates.push_back(&ptr);
+    return *this;
   }
 
   Fragment FragmentBuilder::build() {
