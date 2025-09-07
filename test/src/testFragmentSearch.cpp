@@ -44,12 +44,8 @@ namespace {
       *nextState = stateManager.back().get();
   }
 
-  std::unique_ptr<State> createState(const std::optional<char>& input, State* nextState) {
-    StateBuilder builder;
-    builder.setType(input);
-    return builder.build();
-  }
-  std::unique_ptr<State> createState(const State::Type& input, State* nextState) {
+  template<typename T>
+  std::unique_ptr<State> createState(const T& input, State* nextState) {
     StateBuilder builder;
     builder.setType(input);
     return builder.build();
@@ -71,12 +67,8 @@ namespace {
 
   template<typename... Types>
   constexpr auto createDaisyChainedStates(Types&& ...types) {
-    constexpr size_t size = sizeof...(types);
-    std::array<std::unique_ptr<State>, size> states{ std::make_unique<State>(State::Type::ch, std::nullopt, std::vector<State*>{})
-    };
     std::tuple<Types...> typeTuple{ types... };
-    std::make_integer_sequence<size_t, size> intSeries;
-
+    std::make_integer_sequence<size_t, sizeof...(types)> intSeries;
     return createArray(typeTuple, intSeries);
   }
 
