@@ -35,15 +35,6 @@ namespace {
     }
   }
 
-  void addMatchState(Fragment& fragment, std::vector<std::unique_ptr<State>>& stateManager) {
-    StateBuilder matchBuilder;
-    matchBuilder.setType(State::Type::match);
-    matchBuilder.cutOffConnections();
-    stateManager.push_back(matchBuilder.build());
-    for (auto& nextState : fragment.nextStates)
-      *nextState = stateManager.back().get();
-  }
-
   template<typename T>
   std::unique_ptr<State> createState(const T& input, State* nextState) {
     StateBuilder builder;
@@ -52,7 +43,7 @@ namespace {
   }
 
   template<typename Tuple, size_t... ints>
-  constexpr auto createArray(const Tuple& tuple, std::index_sequence<ints...> series) {
+  constexpr auto createLinkedStateArray(const Tuple& tuple, std::index_sequence<ints...> series) {
     constexpr size_t size = sizeof...(ints);
     std::array<std::unique_ptr<State>, size> states;
 
@@ -69,7 +60,7 @@ namespace {
   constexpr auto createDaisyChainedStates(Types&& ...types) {
     std::tuple<Types...> typeTuple{ types... };
     std::make_integer_sequence<size_t, sizeof...(types)> intSeries;
-    return createArray(typeTuple, intSeries);
+    return createLinkedStateArray(typeTuple, intSeries);
   }
 
 } // anonymous namespace
