@@ -1,4 +1,4 @@
-file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../test/inc/*.h")
+file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../test/inc/*.h" "../test/inc/op/*.h" "../test/nfa/inc/*.h")
 
 enable_testing()
 
@@ -18,12 +18,12 @@ add_executable(testLibRegEx
                src/storageUtils.cpp 
                src/testExpression.cpp 
                src/testCalculateHitMask.cpp 
-               src/testOperator.cpp 
+               src/op/testOperator.cpp 
                src/testExpressionBuildFunctions.cpp 
                src/testParseResult.cpp 
-               src/NfaBuilderForTest.cpp
-               src/testNfaBuilder.cpp
-               src/testFragmentSearch.cpp
+               src/nfa/MainBuilderForTest.cpp
+               src/nfa/testMainBuilder.cpp
+               src/nfa/testFragmentSearch.cpp
 	           ${HEADER_LIST})
 
 # I'm using C++20 in the test

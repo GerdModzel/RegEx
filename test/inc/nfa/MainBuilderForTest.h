@@ -7,9 +7,9 @@
 using namespace regex::nfa;
 
 // A subclass of MainBuilder to expose internal states for testing
-class NfaBuilderForTest : public MainBuilder {
+class MainBuilderForTest : public MainBuilder {
 public:
-  NfaBuilderForTest() = default;
+  MainBuilderForTest() = default;
 
   size_t getStateManagerSize() const {
     return stateManager.size();
@@ -42,12 +42,12 @@ public:
   }
 };
 
-// Helper function to set up an NfaBuilderForTest with a sequence of operators
+// Helper function to set up an MainBuilderForTest with a sequence of operators
 // The parameter pack allows passing any number of parameters that are derived from regex::op::Operator
 template<typename... Types>
   requires (std::derived_from<Types, regex::op::Operator> && ...)
-NfaBuilderForTest setUpNfaBuilder(Types&& ...types) {
-  NfaBuilderForTest builder;
+MainBuilderForTest setUpNfaBuilder(Types&& ...types) {
+  MainBuilderForTest builder;
   (builder.visit(std::make_unique<Types>(std::move(types)).get()), ...);
   return builder;
 }

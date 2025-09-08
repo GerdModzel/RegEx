@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "NfaBuilderForTest.h"
+#include "nfa/MainBuilderForTest.h"
 #include "op/AllOperatorIncludes.h"
 
 #include <algorithm>
@@ -74,7 +74,7 @@ private:
 
 
 TEST(NfaBuilder, LiteralFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'));
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'));
 
   const size_t expectedStateCount = 1;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -93,7 +93,7 @@ TEST(NfaBuilder, LiteralFragment) {
 }
 
 TEST(NfaBuilder, WildcardFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Wildcard());
+  MainBuilderForTest builder = setUpNfaBuilder(Wildcard());
 
   const size_t expectedStateCount = 1;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -112,7 +112,7 @@ TEST(NfaBuilder, WildcardFragment) {
 }
 
 TEST(NfaBuilder, MatchFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), Match());
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), Match());
 
   const size_t expectedStateCount = 2;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -130,7 +130,7 @@ TEST(NfaBuilder, MatchFragment) {
 }
 
 TEST(NfaBuilder, ConcatenationFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), Literal('b'), Concatenation());
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), Literal('b'), Concatenation());
 
   const size_t expectedStateCount = 2;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -145,7 +145,7 @@ TEST(NfaBuilder, ConcatenationFragment) {
 
 
 TEST(NfaBuilder, AlternationFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), Literal('b'), Alternation());
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), Literal('b'), Alternation());
 
   const size_t expectedStateCount = 3;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -166,7 +166,7 @@ TEST(NfaBuilder, AlternationFragment) {
 }
 
 TEST(NfaBuilder, ZeroOrMoreFragment) {
- NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), ZeroOrMore());
+ MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), ZeroOrMore());
 
   const size_t expectedStateCount = 2;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -185,7 +185,7 @@ TEST(NfaBuilder, ZeroOrMoreFragment) {
 }
 
 TEST(NfaBuilder, OneOrMoreFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), OneOrMore());
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), OneOrMore());
 
   const size_t expectedStateCount = 2;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
@@ -204,7 +204,7 @@ TEST(NfaBuilder, OneOrMoreFragment) {
 }
 
 TEST(NfaBuilder, ZeroOrOneFragment) {
-  NfaBuilderForTest builder = setUpNfaBuilder(Literal('a'), ZeroOrOne());
+  MainBuilderForTest builder = setUpNfaBuilder(Literal('a'), ZeroOrOne());
 
   const size_t expectedStateCount = 2;
   ASSERT_EQ(builder.getStateManagerSize(), expectedStateCount);
