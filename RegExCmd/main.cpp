@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "find.h"
+#include "search.h"
 #include "calculateHitMask.h"
 
 #include "windows.h"

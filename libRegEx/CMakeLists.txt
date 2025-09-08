@@ -1,7 +1,7 @@
 ﻿file(GLOB HEADER_LIST CONFIGURE_DEPENDS "../inc/*.h" "../inc/op/*.h" "../inc/nfa/*.h")
 
 add_library(libRegEx 
-	find.cpp 
+	search.cpp 
 	ParseResult.cpp 
 	Expression.cpp 
 	calculateHitMask.cpp 
