@@ -6,14 +6,16 @@ Currently the NFA algorithm is implemented with the most common operations: ().*
 
 Building should work with cmake without special configuration.
 
-The simplest usage is via the find() function in libRegEx/find.h. Internally, the functions does this:
+The simplest usage is via the search() function in libRegEx/search.h. Internally, the functions does this:
 ```
 namespace regex {
-    ExpressionBuilder builder(&buildExpressionArgumentsFirstOperatorLast);
-    constExpression expr = builder.build(searchString);
+    ExpressionBuilder exprBuilderildExpressionArgumentsFirstOperatorLast);
+    Expression expr = exprBuilder.build(searchString);
 
-    NfaFragment nfa = NfaBuilder::createNfaFragment(expr);
-    const std::vector<ParseResult> results = executeSearch(text, &nfa);
+    nfa::MainBuilder nfaBuilder;
+    nfa::Complete nfa = nfaBuilder.createNfaFragment(expr);
+
+    return executeSearch(text, &nfa);
 }
 ```
 The `ExpressionBuilder` converts the search string into an `Expression` using the function supplied to the constructor. `NfaBuilder` creates a non-deterministic finite automaton (NFA) that is then traversed by `executeSearch` to find matching strings in the text.
@@ -22,6 +24,7 @@ The `ExpressionBuilder` converts the search string into an `Expression` using th
 folder structure:
 - inc: header files
 - libRegEx: the library's source files
+- subdirectories correspond to namespaces
 - RegExCmd: a simple Windows-only applications for manual testing
 - res: Files I use for testing
 - test: tests using googletest
