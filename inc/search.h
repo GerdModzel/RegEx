@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "ParseResult.h"
+#include "SearchResult.h"
 #include "Expression.h"
 
 #include <string_view>

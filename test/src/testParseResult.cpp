@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "ParseResult.h"
+#include "SearchResult.h"
 
 #include <algorithm>
 #include <ranges>

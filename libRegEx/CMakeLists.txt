@@ -2,7 +2,7 @@
 
 add_library(libRegEx 
 	search.cpp 
-	ParseResult.cpp 
+	SearchResult.cpp 
 	Expression.cpp 
 	calculateHitMask.cpp 
 	ExpressionBuilder.cpp 
